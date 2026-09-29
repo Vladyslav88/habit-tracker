@@ -1,13 +1,6 @@
-// Вкладки, що зʼявляться в Етапі 2. Поки — акуратні заглушки з кількома цифрами.
+// Вкладка «Англійська» — зʼявиться в Етапі 2б. Поки — акуратна заглушка з кількома цифрами.
 import { plural } from '../dates.js';
-import { HABITS } from '../entry.js';
 import { h } from './dom.js';
-
-function countDone(store, habit) {
-  let n = 0;
-  for (const [id, e] of store.entries) if (id.endsWith(`:${habit}`) && e.s === 'done') n++;
-  return n;
-}
 
 function soon({ emoji, title, text, facts }) {
   return h('section', { class: 'card soon' },
@@ -15,21 +8,7 @@ function soon({ emoji, title, text, facts }) {
     h('h2', null, title),
     h('p', { class: 'muted' }, text),
     facts.length ? h('div', { class: 'soon-facts' }, facts.map(([v, k]) => h('div', null, h('b', null, v), h('span', null, k)))) : null,
-    h('span', { class: 'tag' }, 'Етап 2'));
-}
-
-export function renderAnalytics(view, { store }) {
-  view.replaceChildren(
-    h('header', { class: 'page-head' }, h('h1', null, 'Аналітика')),
-    h('div', { class: 'page-body' }, soon({
-      emoji: '📈',
-      title: 'Тут буде аналітика',
-      text: 'Відсоток виконання, серії, енергія, спина після різних Днів, контрольні точки і місячна картка-підсумок.',
-      facts: ['train', 'eng'].map((hb) => {
-        const n = countDone(store, hb);
-        return [String(n), plural(n, HABITS[hb].forms)];
-      }),
-    })));
+    h('span', { class: 'tag' }, 'Етап 2б'));
 }
 
 export function renderEnglish(view, { store }) {

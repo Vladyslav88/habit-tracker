@@ -1,15 +1,16 @@
-// Вкладка «Налаштування» (SPEC §5.5): розклад, паузи, про застосунок.
+// Вкладка «Налаштування» (SPEC §5.5): розклад, паузи, контрольні точки, про застосунок.
 import { addDays, diffDays, fmtDay, isValidKey, plural, todayKey, WEEKDAYS, WEEKDAYS_CAP } from '../dates.js';
 import { HABITS } from '../entry.js';
 import { daysFor, DEFAULT_DAYS, DEFAULT_WORKOUTS, missesInRange, PAUSE_LABEL_MAX, pauseOn } from '../schedule.js';
 import { getPreview, SEASONS, seasonOf, setPreview, timeOfDay, TIMES } from '../seasons.js';
 import { KEYS_MAX } from '../storage.js';
 import { haptic } from '../tg.js';
+import { cpRange, cpWhen, nextCheckpoint, openCheckpoints } from './checkpoints.js';
 import { h, icon } from './dom.js';
 import { openScreen } from './screen.js';
 import { confirmDialog, openSheet, toast } from './sheet.js';
 
-export const APP_VERSION = '0.2.2 · Етап 1';
+export const APP_VERSION = '0.3.0 · Етап 2а';
 
 function scheduleSummary(settings) {
   const days = daysFor(settings, todayKey());
@@ -23,6 +24,13 @@ function pausesSummary(settings) {
   if (now) return `зараз: ${now.label || 'пауза'}`;
   const n = settings.pauses.length;
   return n ? `${n} ${plural(n, ['пауза', 'паузи', 'пауз'])}` : 'немає';
+}
+
+function checkpointsSummary(store) {
+  const c = nextCheckpoint(store.settings, store.entries);
+  if (c) return `${c.label || 'наступна'}: ${cpRange(c)}, ${cpWhen(c, todayKey())}`;
+  const n = store.settings.checkpoints.length;
+  return n ? 'усі вже минули' : 'немає';
 }
 
 function row({ icon: ic, title, sub, onClick, soon }) {
@@ -41,7 +49,7 @@ export function renderSettings(view, ctx) {
         row({ icon: 'calendar', title: 'Розклад', sub: scheduleSummary(store.settings), onClick: () => openSchedule(store) }),
         row({ icon: 'pause', title: 'Паузи', sub: pausesSummary(store.settings), onClick: () => openPauses(store) })),
       h('div', { class: 'group' },
-        row({ icon: 'flag', title: 'Контрольні точки', sub: 'відлік до чекпоінтів', soon: 'Етап 2' }),
+        row({ icon: 'flag', title: 'Контрольні точки', sub: checkpointsSummary(store), onClick: () => openCheckpoints(store) }),
         row({ icon: 'swap', title: 'Імпорт і експорт', sub: 'CSV, JSON, XLSX', soon: 'Етап 3' })),
       h('div', { class: 'group' },
         row({ icon: 'info', title: 'Про застосунок', sub: store.mode === 'cloud' ? 'дані в хмарі Telegram' : 'дані в цьому браузері', onClick: () => openAbout(ctx) }))),

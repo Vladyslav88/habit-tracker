@@ -438,7 +438,142 @@ dl.card.details { gap: 12px; }
 .choices-wrap { gap: 6px; }
 .choice-sm { min-height: 40px; padding: 0 12px; font-size: 14px; border-radius: 12px; }
 
-/* ——— Заглушки Етапу 2 ——— */
+/* ——— Аналітика ———
+   Кольори лише з токенів: звички — --hc* (через .habit-*), решта — акцент і нейтральні.
+   Текст і числа — нейтральним чорнилом; колір несе лише фігура поруч (кільце, смуга, мітка). */
+.an-page { gap: 12px; }
+.an-period .seg { font-size: 14px; padding: 0 4px; }
+.an-range { margin-top: -4px; font-variant-numeric: tabular-nums; }
+.an-card { display: grid; gap: 14px; }
+.an-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.an-card-head h3 { font-size: 16px; font-weight: 750; }
+.an-notice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: inset 4px 0 0 var(--accent), var(--shadow);
+  color: var(--ink);
+}
+.an-notice > .ic { width: 20px; height: 20px; margin-top: 1px; color: var(--accent); }
+
+/* Порожній стан картки: текст + скільки ще бракує */
+.an-empty { display: grid; gap: 10px; padding: 4px 0 2px; }
+.an-need { display: flex; gap: 6px; }
+.an-need i { width: 22px; height: 6px; border-radius: 3px; background: var(--surface-3); }
+.an-need i.on { background: var(--accent); }
+
+/* Виконання: кільце (коло / заокруглений квадрат) + підписи */
+.an-done { gap: 16px; }
+.an-habit { display: flex; align-items: center; gap: 14px; }
+.an-habit + .an-habit { padding-top: 16px; border-top: 1px solid var(--line); }
+.ring { position: relative; flex: none; width: 72px; height: 72px; display: grid; place-items: center; }
+.ring-svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.habit-eng .ring-svg { transform: none; }
+.ring-track, .ring-val { fill: none; stroke-width: 6; }
+.ring-track { stroke: var(--hc-soft); }
+.ring-val { stroke: var(--hc-edge); stroke-linecap: round; transition: stroke-dasharray .5s ease; }
+.ring-num { position: relative; font-family: var(--font-display); font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.an-habit-main { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.an-habit-main strong { font-size: 16px; font-weight: 750; }
+.an-streak { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; color: var(--ink-2); }
+.an-streak .ic { width: 15px; height: 15px; color: var(--hc-fg); }
+.an-streak b { color: var(--ink); }
+
+/* Горизонтальні смуги */
+.hbars { display: grid; gap: 10px; }
+.hbar { display: grid; grid-template-columns: 104px 1fr auto; align-items: center; gap: 10px; font-size: 14px; }
+.hbar-label { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hbar-val { min-width: 20px; text-align: right; font-variant-numeric: tabular-nums; }
+.hbar-track { display: flex; gap: 2px; height: 12px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.hbar-track i { display: block; height: 100%; border-radius: 4px; background: var(--hc, var(--accent)); box-shadow: inset 0 0 0 1px var(--hc-edge, transparent); }
+.hbars.habit-train .hbar-track { background: var(--hc-soft); }
+/* Спина: той самий червоний, що й крапка «спина» в календарі */
+.hbars-back .hbar-track i { background: var(--danger); box-shadow: none; }
+.hbars-back .hbar.is-top .hbar-label { color: var(--ink); font-weight: 700; }
+.an-verdict { font-size: 15.5px; font-weight: 650; }
+
+.an-legend { display: flex; gap: 14px; }
+.an-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.an-legend .dot, .an-quote .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--hc); box-shadow: inset 0 0 0 1.2px var(--hc-edge); }
+.an-comments { display: grid; gap: 8px; }
+.an-quote { margin: 0; display: grid; gap: 4px; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); }
+.an-quote > span { display: inline-flex; align-items: center; gap: 6px; }
+.an-quote .dot { display: inline-block; }
+.an-quote p { font-size: 14.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Енергія */
+.an-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.an-tile { display: grid; gap: 2px; padding: 10px 12px; border-radius: 16px; background: var(--surface-2); }
+.an-tile b { font-family: var(--font-display); font-size: 18px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.an-hist { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; align-items: end; }
+.an-hist-col { display: grid; justify-items: center; gap: 4px; }
+.an-hist-val { min-height: 18px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.an-hist-bar { display: flex; align-items: flex-end; width: 100%; max-width: 36px; height: 56px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.an-hist-bar i { display: block; width: 100%; border-radius: 4px 4px 0 0; background: var(--accent); }
+.an-hist-emoji { font-size: 20px; line-height: 1; }
+
+/* Контрольні точки */
+.an-next-cp {
+  width: 100%;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: left;
+}
+.an-next-cp > .ic { width: 22px; height: 22px; color: var(--accent); }
+.an-next-main { flex: 1; min-width: 0; display: grid; }
+.an-next-days { display: grid; justify-items: center; line-height: 1.1; font-size: 12px; color: var(--ink-2); }
+.an-next-days b { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--ink); }
+.an-section-head { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; margin-bottom: -4px; }
+.an-section-head .section-title { margin: 0 6px; }
+.an-section-head .link-btn { color: var(--accent); }
+
+.cp { display: grid; gap: 12px; }
+.cp-head { display: flex; align-items: center; gap: 12px; }
+.cp-count {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  border-radius: 16px;
+  background: var(--accent-soft);
+  line-height: 1.05;
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.cp-count b { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--ink); }
+.cp-count .ic { width: 24px; height: 24px; color: var(--ink-2); }
+.cp-now .cp-count { background: var(--accent); color: var(--accent-ink); }
+.cp-now .cp-count .ic { color: var(--accent-ink); }
+.cp-past .cp-count { background: var(--surface-2); }
+.cp-titles { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.cp-titles h3 { font-size: 16px; font-weight: 750; }
+.cp-seg { display: grid; gap: 8px; }
+.cp-stats { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; }
+.cp-stat { display: inline-flex; align-items: center; gap: 6px; }
+.cp-stat .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--hc); box-shadow: inset 0 0 0 1.2px var(--hc-edge); }
+.cp-stat b { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 380px) {
+  .hbar { grid-template-columns: 88px 1fr auto; }
+  .an-tile { padding: 8px 10px; }
+  .an-tile b { font-size: 16px; }
+  .ring { width: 64px; height: 64px; }
+}
+
+/* ——— Заглушки (вкладка «Англійська») ——— */
 .soon { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 28px 20px 22px; }
 .soon-emoji { font-size: 44px; line-height: 1; }
 .soon h2 { font-size: 20px; font-weight: 750; }
