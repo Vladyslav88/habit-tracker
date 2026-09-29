@@ -9,7 +9,7 @@ import { h, icon } from './dom.js';
 import { openScreen } from './screen.js';
 import { confirmDialog, openSheet, toast } from './sheet.js';
 
-export const APP_VERSION = '0.2.1 · Етап 1';
+export const APP_VERSION = '0.2.2 · Етап 1';
 
 function scheduleSummary(settings) {
   const days = daysFor(settings, todayKey());
@@ -267,7 +267,7 @@ function openPauses(store) {
 
 // ——— Про застосунок ———
 
-function openAbout({ store, relook }) {
+function openAbout({ store }) {
   openScreen({
     title: 'Про застосунок',
     render(body) {
@@ -281,7 +281,7 @@ function openAbout({ store, relook }) {
       const garlandBtn = h('button', { type: 'button', class: 'choice choice-sm' }, '🎄 Гірлянда');
       const paintPreview = () => {
         const preview = getPreview();
-        const update = (patch) => { setPreview({ ...getPreview(), ...patch }); relook(); haptic.select(); paintPreview(); };
+        const update = (patch) => { setPreview({ ...getPreview(), ...patch }); haptic.select(); paintPreview(); };
         const mk = (dict, key, container) => container.replaceChildren(...[['', 'Авто'], ...Object.entries(dict).map(([k, v]) => [k, v.emoji ? `${v.emoji} ${v.name}` : v.name])].map(([k, text]) => h('button', {
           type: 'button',
           class: `choice choice-sm ${(preview[key] || '') === k ? 'on' : ''}`,

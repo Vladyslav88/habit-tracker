@@ -31,11 +31,23 @@ export function timeOfDay(date) {
   return 'night';
 }
 
+/**
+ * Привітання — лише за реальним місцевим часом (ранок 5–12, день 12–18, вечір 18–23, ніч 23–5),
+ * не залежить від превʼю. Межі відрізняються від меж неба (SPEC §6).
+ */
+export function greetingFor(date = new Date()) {
+  const h = date.getHours();
+  const key = h >= 5 && h < 12 ? 'morning' : h >= 12 && h < 18 ? 'day' : h >= 18 && h < 23 ? 'evening' : 'night';
+  return TIMES[key].greeting;
+}
+
 // ——— Превʼю дизайну ———
 // Вмикається посиланням ?season=…&time=…&garland=1 або в «Про застосунок».
 // Живе лише в памʼяті: параметри одразу прибираються з адреси, тож перезавантаження
 // чи кнопка «Вийти» повертають реальний сезон і час.
+// Єдине джерело істини: сцена, палітра, частинки, плашка й банер читають лише currentLook().
 const preview = { season: null, tod: null, garland: false };
+const listeners = new Set();
 const PREVIEW_KEYS = ['season', 'time', 'garland'];
 
 export function readPreviewFromUrl() {
@@ -52,10 +64,20 @@ export function readPreviewFromUrl() {
 
 export const getPreview = () => ({ ...preview });
 export const isPreview = () => !!(preview.season || preview.tod || preview.garland);
+/** Підписка на будь-яку зміну превʼю (вмикання, вибір у «Про застосунок», «Вийти»). */
+export function onPreviewChange(fn) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
 export function setPreview(p) {
-  preview.season = SEASONS[p.season] ? p.season : null;
-  preview.tod = TIMES[p.tod] ? p.tod : null;
-  preview.garland = p.garland === true;
+  const next = {
+    season: SEASONS[p.season] ? p.season : null,
+    tod: TIMES[p.tod] ? p.tod : null,
+    garland: p.garland === true,
+  };
+  if (next.season === preview.season && next.tod === preview.tod && next.garland === preview.garland) return;
+  Object.assign(preview, next);
+  listeners.forEach((fn) => fn());
 }
 export const clearPreview = () => setPreview({});
 

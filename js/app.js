@@ -1,6 +1,6 @@
 // Точка входу: Telegram, тема, сховище, вкладки, годинник.
 import { fmtTime, todayKey } from './dates.js';
-import { clearPreview, currentLook, getPreview, isPreview, readPreviewFromUrl, renderParticles, SEASONS, TIMES } from './seasons.js';
+import { clearPreview, currentLook, getPreview, greetingFor, isPreview, onPreviewChange, readPreviewFromUrl, renderParticles, SEASONS, TIMES } from './seasons.js';
 import { createStorage } from './storage.js';
 import { createStore } from './store.js';
 import {
@@ -35,6 +35,7 @@ if (!TABS.some((t) => t.id === current)) current = 'today';
 readPreviewFromUrl();
 let look = currentLook();
 let lastDay = todayKey();
+let lastGreeting = greetingFor();
 
 // ——— Оформлення ———
 
@@ -75,6 +76,9 @@ function relook() {
   if (store.settings) render();
 }
 
+// Будь-яка зміна превʼю (URL, «Про застосунок», «Вийти») йде цим одним шляхом.
+onPreviewChange(relook);
+
 function trackViewport() {
   const vv = window.visualViewport;
   if (!vv) return;
@@ -101,7 +105,7 @@ function showBanner() {
     banner.hidden = false;
     banner.dataset.kind = 'preview';
     banner.replaceChildren(h('span', null, `Превʼю: ${parts.join(' · ')}`),
-      h('button', { type: 'button', class: 'banner-btn', onclick: () => { clearPreview(); relook(); toast('Превʼю вимкнено'); } }, 'Вийти'));
+      h('button', { type: 'button', class: 'banner-btn', onclick: () => { clearPreview(); toast('Превʼю вимкнено'); } }, 'Вийти'));
     root.classList.add('has-banner');
     return;
   }
@@ -167,7 +171,7 @@ function select(id) {
 function render() {
   const tab = TABS.find((t) => t.id === current);
   view.dataset.tab = current;
-  tab.render(view, { store, look, relook, syncLook: applyLook });
+  tab.render(view, { store, syncLook: applyLook });
 }
 
 // ——— Годинник і зміна дня ———
@@ -177,8 +181,10 @@ function tick() {
   document.querySelectorAll('[data-clock]').forEach((el) => { el.textContent = fmtTime(now); });
   const day = todayKey();
   const changed = applyLook();
-  if (day !== lastDay || changed) {
+  const greeting = greetingFor(now);
+  if (day !== lastDay || changed || greeting !== lastGreeting) {
     lastDay = day;
+    lastGreeting = greeting;
     if (store.settings) render();
   }
   setTimeout(tick, 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 50);
