@@ -2,7 +2,7 @@
 import { fmtDay, fmtLong, fmtShort, fmtTime, relDays, todayKey } from '../dates.js';
 import { HABITS, HABIT_IDS } from '../entry.js';
 import { sceneMarkup } from '../scenes.js';
-import { SEASONS, TIMES } from '../seasons.js';
+import { currentLook, SEASONS, TIMES } from '../seasons.js';
 import { entryId, planFor, unmarked, upcoming } from '../schedule.js';
 import { firstName, haptic } from '../tg.js';
 import { h, icon } from './dom.js';
@@ -133,7 +133,8 @@ function syncFxHeight(hero) {
   });
 }
 
-export function renderToday(view, { store, look }) {
+export function renderToday(view, { store }) {
+  const look = currentLook();
   const today = todayKey();
   const plan = planFor(store.settings, today);
   // Пауза має пріоритет: пропуск у день паузи не показуємо.
