@@ -1,0 +1,604 @@
+{
+ "deleteEntry/stats": {
+  "broken": 0,
+  "entries": 153,
+  "keys": 154,
+  "packs": 0
+ },
+ "load/entries": {
+  "2026-08-20:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"З пакета\",\"hw\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-08-20T18:00:00.000Z\"}",
+  "2026-08-24:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":null,\"back\":false,\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-08-24T18:30:00.000Z\"}",
+  "2026-08-25:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Present Perfect\",\"hw\":null,\"energy\":3,\"reasons\":[],\"comment\":\"Багато говорили\",\"ts\":\"2026-08-25T18:30:00.000Z\"}",
+  "2026-08-26:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"60-70\",\"back\":false,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-08-26T18:30:00.000Z\"}",
+  "2026-08-27:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Phrasal verbs\",\"hw\":null,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-08-27T18:30:00.000Z\"}",
+  "2026-08-28:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":null,\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-08-28T18:30:00.000Z\"}",
+  "2026-09-01:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Conditionals\",\"hw\":{\"text\":\"Вправи до 2026-09-01\",\"done\":true},\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-01T18:30:00.000Z\"}",
+  "2026-09-01:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":null,\"back\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-01T18:30:00.000Z\"}",
+  "2026-09-02:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"gt70\",\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-02T18:30:00.000Z\"}",
+  "2026-09-03:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Travel vocabulary\",\"hw\":{\"text\":\"Вправи до 2026-09-03\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-03T18:30:00.000Z\"}",
+  "2026-09-04:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"lt60\",\"back\":true,\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-04T18:30:00.000Z\"}",
+  "2026-09-05:eng": "{\"s\":\"done\",\"bonus\":true,\"topic\":\"Phrasal verbs\",\"hw\":null,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-05T18:30:00.000Z\"}",
+  "2026-09-06:train": "{\"s\":\"done\",\"bonus\":true,\"day\":2,\"dur\":\"gt70\",\"back\":true,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-06T18:30:00.000Z\"}",
+  "2026-09-07:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"60-70\",\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-07T18:30:00.000Z\"}",
+  "2026-09-08:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"present perfect\",\"hw\":null,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-08T18:30:00.000Z\"}",
+  "2026-09-09:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-09T18:30:00.000Z\"}",
+  "2026-09-10:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Past Simple\",\"hw\":{\"text\":\"Вправи до 2026-09-10\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-10T18:30:00.000Z\"}",
+  "2026-09-11:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"gt70\",\"back\":null,\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-11T18:30:00.000Z\"}",
+  "2026-09-12:eng": "{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":null,\"reasons\":[\"other\"],\"comment\":\"\",\"ts\":\"2026-09-12T18:30:00.000Z\"}",
+  "2026-09-14:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"60-70\",\"back\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-14T18:30:00.000Z\"}",
+  "2026-09-15:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Modal verbs\",\"hw\":null,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-15T18:30:00.000Z\"}",
+  "2026-09-16:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-16T18:30:00.000Z\"}",
+  "2026-09-17:eng": "{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":null,\"reasons\":[\"no_time\"],\"comment\":\"Перенесли заняття\",\"ts\":\"2026-09-17T18:30:00.000Z\"}",
+  "2026-09-18:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-18T18:30:00.000Z\"}",
+  "2026-09-21:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"60-70\",\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-21T18:30:00.000Z\"}",
+  "2026-09-22:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Small talk\",\"hw\":null,\"energy\":4,\"reasons\":[],\"comment\":\"Багато говорили\",\"ts\":\"2026-09-22T18:30:00.000Z\"}",
+  "2026-09-23:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":true,\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-23T18:30:00.000Z\"}",
+  "2026-09-24:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-24T18:30:00.000Z\"}",
+  "2026-09-25:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-25T18:30:00.000Z\"}",
+  "2026-09-28:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"gt70\",\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-28T18:30:00.000Z\"}",
+  "2026-09-29:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Job interview\",\"hw\":{\"text\":\"Вправи до 2026-09-29\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-29T18:30:00.000Z\"}",
+  "2026-09-30:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":true,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-09-30T18:30:00.000Z\"}",
+  "2026-10-02:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"lt60\",\"back\":false,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-02T18:30:00.000Z\"}",
+  "2026-10-05:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"60-70\",\"back\":true,\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-05T18:30:00.000Z\"}",
+  "2026-10-06:eng": "{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":2,\"reasons\":[\"tired\",\"other\"],\"comment\":\"\",\"ts\":\"2026-10-06T18:30:00.000Z\"}",
+  "2026-10-07:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-07T18:30:00.000Z\"}",
+  "2026-10-08:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Passive voice\",\"hw\":null,\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-08T18:30:00.000Z\"}",
+  "2026-10-09:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":false,\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-09T18:30:00.000Z\"}",
+  "2026-10-13:eng": "{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":1,\"reasons\":[\"sick\"],\"comment\":\"Температура\",\"ts\":\"2026-10-13T18:30:00.000Z\"}",
+  "2026-10-14:train": "{\"s\":\"done\",\"bonus\":true,\"day\":null,\"dur\":\"lt60\",\"back\":false,\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-14T18:30:00.000Z\"}",
+  "2026-10-19:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"lt60\",\"back\":null,\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-19T18:30:00.000Z\"}",
+  "2026-10-20:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Articles\",\"hw\":null,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-20T18:30:00.000Z\"}",
+  "2026-10-21:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-21T18:30:00.000Z\"}",
+  "2026-10-22:eng": "{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":null,\"reasons\":[],\"comment\":\"Тютор захворів\",\"ts\":\"2026-10-22T18:30:00.000Z\"}",
+  "2026-10-23:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":true,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-23T18:30:00.000Z\"}",
+  "2026-10-26:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"gt70\",\"back\":false,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-26T18:30:00.000Z\"}",
+  "2026-10-27:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"\",\"hw\":{\"text\":\"Вправи до 2026-10-27\",\"done\":true},\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-27T18:30:00.000Z\"}",
+  "2026-10-28:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"lt60\",\"back\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-28T18:30:00.000Z\"}",
+  "2026-10-29:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Reported speech\",\"hw\":{\"text\":\"Вправи до 2026-10-29\",\"done\":true},\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-29T18:30:00.000Z\"}",
+  "2026-10-30:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-30T18:30:00.000Z\"}",
+  "2026-11-02:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"60-70\",\"back\":true,\"energy\":3,\"reasons\":[],\"comment\":\"Легко пішло\",\"ts\":\"2026-11-02T18:30:00.000Z\"}",
+  "2026-11-03:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Phrasal Verbs\",\"hw\":{\"text\":\"Вправи до 2026-11-03\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-03T18:30:00.000Z\"}",
+  "2026-11-04:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":null,\"back\":null,\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-04T18:30:00.000Z\"}",
+  "2026-11-05:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Food idioms\",\"hw\":{\"text\":\"Вправи до 2026-11-05\",\"done\":true},\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-05T18:30:00.000Z\"}",
+  "2026-11-06:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"60-70\",\"back\":false,\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-06T18:30:00.000Z\"}",
+  "2026-11-07:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"\",\"hw\":{\"text\":\"Вправи до 2026-11-07\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-07T18:30:00.000Z\"}",
+  "2026-11-09:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"lt60\",\"back\":true,\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-09T18:30:00.000Z\"}",
+  "2026-11-10:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Gerund vs infinitive\",\"hw\":{\"text\":\"Вправи до 2026-11-10\",\"done\":true},\"energy\":1,\"reasons\":[],\"comment\":\"Багато говорили\",\"ts\":\"2026-11-10T18:30:00.000Z\"}",
+  "2026-11-11:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":false,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-11T18:30:00.000Z\"}",
+  "2026-11-12:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Business email\",\"hw\":{\"text\":\"Вправи до 2026-11-12\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-12T18:30:00.000Z\"}",
+  "2026-11-13:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":false,\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-13T18:30:00.000Z\"}",
+  "2026-11-14:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Linking words\",\"hw\":{\"text\":\"Вправи до 2026-11-14\",\"done\":true},\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-14T18:30:00.000Z\"}",
+  "2026-11-16:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"lt60\",\"back\":null,\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-16T18:30:00.000Z\"}",
+  "2026-11-17:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Future forms\",\"hw\":{\"text\":\"Вправи до 2026-11-17\",\"done\":true},\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-17T18:30:00.000Z\"}",
+  "2026-11-18:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"gt70\",\"back\":true,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-18T18:30:00.000Z\"}",
+  "2026-11-19:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Relative clauses\",\"hw\":{\"text\":\"Вправи до 2026-11-19\",\"done\":true},\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-19T18:30:00.000Z\"}",
+  "2026-11-20:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"60-70\",\"back\":true,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-20T18:30:00.000Z\"}",
+  "2026-11-21:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Comparatives\",\"hw\":{\"text\":\"Вправи до 2026-11-21\",\"done\":true},\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-21T18:30:00.000Z\"}",
+  "2026-11-23:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"lt60\",\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-23T18:30:00.000Z\"}",
+  "2026-11-24:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Used to\",\"hw\":{\"text\":\"Вправи до 2026-11-24\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-24T18:30:00.000Z\"}",
+  "2026-11-25:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"gt70\",\"back\":true,\"energy\":3,\"reasons\":[],\"comment\":\"Легко пішло\",\"ts\":\"2026-11-25T18:30:00.000Z\"}",
+  "2026-11-26:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Question tags\",\"hw\":{\"text\":\"Вправи до 2026-11-26\",\"done\":true},\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-26T18:30:00.000Z\"}",
+  "2026-11-27:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"lt60\",\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-27T18:30:00.000Z\"}",
+  "2026-11-28:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Collocations\",\"hw\":{\"text\":\"Вправи до 2026-11-28\",\"done\":true},\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-28T18:30:00.000Z\"}",
+  "2026-11-30:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"lt60\",\"back\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-11-30T18:30:00.000Z\"}",
+  "2026-12-01:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Prepositions of time\",\"hw\":{\"text\":\"Вправи до 2026-12-01\",\"done\":true},\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-01T18:30:00.000Z\"}",
+  "2026-12-02:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"gt70\",\"back\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-02T18:30:00.000Z\"}",
+  "2026-12-03:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Wish clauses\",\"hw\":{\"text\":\"Вправи до 2026-12-03\",\"done\":true},\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-03T18:30:00.000Z\"}",
+  "2026-12-04:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"lt60\",\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-04T18:30:00.000Z\"}",
+  "2026-12-05:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Mixed conditionals\",\"hw\":{\"text\":\"Вправи до 2026-12-05\",\"done\":true},\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-05T18:30:00.000Z\"}",
+  "2026-12-07:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"60-70\",\"back\":false,\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-07T18:30:00.000Z\"}",
+  "2026-12-08:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Narrative tenses\",\"hw\":{\"text\":\"Вправи до 2026-12-08\",\"done\":true},\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-08T18:30:00.000Z\"}",
+  "2026-12-09:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":null,\"back\":false,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-09T18:30:00.000Z\"}",
+  "2026-12-10:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Emphasis\",\"hw\":{\"text\":\"Вправи до 2026-12-10\",\"done\":false},\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-10T18:30:00.000Z\"}",
+  "2026-12-11:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"gt70\",\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-11T18:30:00.000Z\"}",
+  "2026-12-12:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Inversion\",\"hw\":{\"text\":\"Вправи до 2026-12-12\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-12T18:30:00.000Z\"}",
+  "2026-12-14:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"60-70\",\"back\":null,\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-14T18:30:00.000Z\"}",
+  "2026-12-15:eng": "{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":1,\"reasons\":[\"sick\"],\"comment\":\"\",\"ts\":\"2026-12-15T18:30:00.000Z\"}",
+  "2026-12-16:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":null,\"back\":false,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-16T18:30:00.000Z\"}",
+  "2026-12-17:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Ellipsis\",\"hw\":{\"text\":\"Вправи до 2026-12-17\",\"done\":true},\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-17T18:30:00.000Z\"}",
+  "2026-12-18:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"60-70\",\"back\":false,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-18T18:30:00.000Z\"}",
+  "2026-12-19:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"\",\"hw\":{\"text\":\"Вправи до 2026-12-19\",\"done\":true},\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-19T18:30:00.000Z\"}",
+  "2026-12-21:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"60-70\",\"back\":null,\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-21T18:30:00.000Z\"}",
+  "2026-12-22:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Cleft sentences\",\"hw\":{\"text\":\"Вправи до 2026-12-22\",\"done\":true},\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-22T18:30:00.000Z\"}",
+  "2026-12-23:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":null,\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-23T18:30:00.000Z\"}",
+  "2026-12-24:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Present Perfect\",\"hw\":{\"text\":\"Вправи до 2026-12-24\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-24T18:30:00.000Z\"}",
+  "2026-12-25:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"60-70\",\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"Легко пішло\",\"ts\":\"2026-12-25T18:30:00.000Z\"}",
+  "2026-12-26:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Phrasal verbs\",\"hw\":{\"text\":\"Вправи до 2026-12-26\",\"done\":true},\"energy\":3,\"reasons\":[],\"comment\":\"Багато говорили\",\"ts\":\"2026-12-26T18:30:00.000Z\"}",
+  "2026-12-28:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"gt70\",\"back\":true,\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-28T18:30:00.000Z\"}",
+  "2026-12-29:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Conditionals\",\"hw\":{\"text\":\"Вправи до 2026-12-29\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-29T18:30:00.000Z\"}",
+  "2026-12-30:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":null,\"back\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-30T18:30:00.000Z\"}",
+  "2026-12-31:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Travel vocabulary\",\"hw\":{\"text\":\"Вправи до 2026-12-31\",\"done\":true},\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-12-31T18:30:00.000Z\"}",
+  "2027-01-01:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"lt60\",\"back\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-01T18:30:00.000Z\"}",
+  "2027-01-02:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"present perfect\",\"hw\":{\"text\":\"Вправи до 2027-01-02\",\"done\":true},\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-02T18:30:00.000Z\"}",
+  "2027-01-04:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":null,\"back\":null,\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-04T18:30:00.000Z\"}",
+  "2027-01-05:eng": "{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":null,\"reasons\":[\"other\"],\"comment\":\"\",\"ts\":\"2027-01-05T18:30:00.000Z\"}",
+  "2027-01-06:train": "{\"s\":\"done\",\"bonus\":true,\"day\":1,\"dur\":\"60-70\",\"back\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-06T18:30:00.000Z\"}",
+  "2027-01-08:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":false,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-08T18:30:00.000Z\"}",
+  "2027-01-09:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Past Simple\",\"hw\":{\"text\":\"Вправи до 2027-01-09\",\"done\":true},\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-09T18:30:00.000Z\"}",
+  "2027-01-11:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"60-70\",\"back\":false,\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-11T18:30:00.000Z\"}",
+  "2027-01-12:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Modal verbs\",\"hw\":{\"text\":\"Вправи до 2027-01-12\",\"done\":true},\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-12T18:30:00.000Z\"}",
+  "2027-01-13:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":null,\"back\":null,\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-13T18:30:00.000Z\"}",
+  "2027-01-14:eng": "{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":null,\"reasons\":[\"tired\",\"sick\"],\"comment\":\"\",\"ts\":\"2027-01-14T18:30:00.000Z\"}",
+  "2027-01-15:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"60-70\",\"back\":false,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-15T18:30:00.000Z\"}",
+  "2027-01-16:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"\",\"hw\":{\"text\":\"Вправи до 2027-01-16\",\"done\":true},\"energy\":4,\"reasons\":[],\"comment\":\"Багато говорили\",\"ts\":\"2027-01-16T18:30:00.000Z\"}",
+  "2027-01-18:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"gt70\",\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-18T18:30:00.000Z\"}",
+  "2027-01-19:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Small talk\",\"hw\":{\"text\":\"Вправи до 2027-01-19\",\"done\":true},\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-19T18:30:00.000Z\"}",
+  "2027-01-20:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":null,\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-20T18:30:00.000Z\"}",
+  "2027-01-21:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Job interview\",\"hw\":{\"text\":\"Вправи до 2027-01-21\",\"done\":true},\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-21T18:30:00.000Z\"}",
+  "2027-01-22:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"Легко пішло\",\"ts\":\"2027-01-22T18:30:00.000Z\"}",
+  "2027-01-23:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Passive voice\",\"hw\":{\"text\":\"Вправи до 2027-01-23\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-23T18:30:00.000Z\"}",
+  "2027-01-25:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"gt70\",\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-25T18:30:00.000Z\"}",
+  "2027-01-26:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Articles\",\"hw\":{\"text\":\"Вправи до 2027-01-26\",\"done\":true},\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-26T18:30:00.000Z\"}",
+  "2027-01-27:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"lt60\",\"back\":true,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-27T18:30:00.000Z\"}",
+  "2027-01-28:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Reported speech\",\"hw\":{\"text\":\"Вправи до 2027-01-28\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-28T18:30:00.000Z\"}",
+  "2027-01-29:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"gt70\",\"back\":false,\"energy\":2,\"reasons\":[],\"comment\":\"Легко пішло\",\"ts\":\"2027-01-29T18:30:00.000Z\"}",
+  "2027-01-30:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Phrasal Verbs\",\"hw\":{\"text\":\"Вправи до 2027-01-30\",\"done\":true},\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-30T18:30:00.000Z\"}",
+  "2027-02-01:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":null,\"back\":true,\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-01T18:30:00.000Z\"}",
+  "2027-02-02:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Food idioms\",\"hw\":{\"text\":\"Вправи до 2027-02-02\",\"done\":true},\"energy\":2,\"reasons\":[],\"comment\":\"Багато говорили\",\"ts\":\"2027-02-02T18:30:00.000Z\"}",
+  "2027-02-03:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-03T18:30:00.000Z\"}",
+  "2027-02-04:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"\",\"hw\":{\"text\":\"Вправи до 2027-02-04\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-04T18:30:00.000Z\"}",
+  "2027-02-05:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":null,\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-05T18:30:00.000Z\"}",
+  "2027-02-06:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Gerund vs infinitive\",\"hw\":{\"text\":\"Вправи до 2027-02-06\",\"done\":true},\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-06T18:30:00.000Z\"}",
+  "2027-02-08:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"lt60\",\"back\":false,\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-08T18:30:00.000Z\"}",
+  "2027-02-09:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"\",\"hw\":{\"text\":\"Вправи до 2027-02-09\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-09T18:30:00.000Z\"}",
+  "2027-02-10:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":true,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-10T18:30:00.000Z\"}",
+  "2027-02-11:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Business email\",\"hw\":{\"text\":\"Вправи до 2027-02-11\",\"done\":true},\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-11T18:30:00.000Z\"}",
+  "2027-02-12:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-12T18:30:00.000Z\"}",
+  "2027-02-13:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Linking words\",\"hw\":{\"text\":\"Вправи до 2027-02-13\",\"done\":true},\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-13T18:30:00.000Z\"}",
+  "2027-02-15:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"gt70\",\"back\":false,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-15T18:30:00.000Z\"}",
+  "2027-02-16:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Future forms\",\"hw\":{\"text\":\"Вправи до 2027-02-16\",\"done\":true},\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-16T18:30:00.000Z\"}",
+  "2027-02-17:train": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"lt60\",\"back\":false,\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-17T18:30:00.000Z\"}",
+  "2027-02-19:train": "{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"gt70\",\"back\":false,\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-19T18:30:00.000Z\"}",
+  "2027-02-20:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Relative clauses\",\"hw\":{\"text\":\"Вправи до 2027-02-20\",\"done\":true},\"energy\":3,\"reasons\":[],\"comment\":\"Багато говорили\",\"ts\":\"2027-02-20T18:30:00.000Z\"}",
+  "2027-02-22:train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"lt60\",\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-22T18:30:00.000Z\"}",
+  "2027-02-23:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Comparatives\",\"hw\":{\"text\":\"Вправи до 2027-02-23\",\"done\":true},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-23T18:30:00.000Z\"}",
+  "2027-02-25:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Used to\",\"hw\":{\"text\":\"Вправи до 2027-02-25\",\"done\":true},\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-25T18:30:00.000Z\"}",
+  "2027-02-26:train": "{\"s\":\"miss\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":null,\"energy\":null,\"reasons\":[\"tired\"],\"comment\":\"\",\"ts\":\"2027-02-26T18:30:00.000Z\"}",
+  "2027-02-27:eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Question tags\",\"hw\":{\"text\":\"Вправи до 2027-02-27\",\"done\":null},\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-02-27T18:30:00.000Z\"}",
+  "2027-03-01:train": "{\"s\":\"miss\",\"bonus\":false,\"day\":1,\"dur\":null,\"back\":null,\"energy\":3,\"reasons\":[\"no_time\",\"back\"],\"comment\":\"Прихопило спину\",\"ts\":\"2027-03-01T18:30:00.000Z\"}",
+  "2027-03-02:train": "{\"s\":\"done\",\"bonus\":true,\"day\":null,\"dur\":null,\"back\":null,\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-03-02T18:30:00.000Z\"}"
+ },
+ "load/settings": {
+  "checkpoints": [
+   {
+    "date": "2026-10-10",
+    "id": "cp-mini",
+    "label": "Міні-чек",
+    "to": null
+   },
+   {
+    "date": "2026-11-07",
+    "id": "cp-review",
+    "label": "Ревʼю",
+    "to": "2026-11-08"
+   },
+   {
+    "date": "2027-01-01",
+    "id": "cp-ny",
+    "label": "Новий рік",
+    "to": null
+   }
+  ],
+  "pauses": [
+   {
+    "from": "2027-03-02",
+    "id": "p-open",
+    "label": "Відпустка",
+    "to": null
+   },
+   {
+    "from": "2027-01-05",
+    "id": "p-trip",
+    "label": "Поїздка",
+    "to": "2027-01-07"
+   },
+   {
+    "from": "2026-10-12",
+    "id": "p-sick",
+    "label": "Хвороба",
+    "to": "2026-10-18"
+   }
+  ],
+  "schedule": [
+   {
+    "days": [
+     {
+      "eng": false,
+      "train": 1
+     },
+     {
+      "eng": true,
+      "train": 0
+     },
+     {
+      "eng": false,
+      "train": 3
+     },
+     {
+      "eng": true,
+      "train": 0
+     },
+     {
+      "eng": false,
+      "train": 2
+     },
+     {
+      "eng": false,
+      "train": 0
+     },
+     {
+      "eng": false,
+      "train": 0
+     }
+    ],
+    "from": "2000-01-01"
+   },
+   {
+    "days": [
+     {
+      "eng": false,
+      "train": 1
+     },
+     {
+      "eng": true,
+      "train": 0
+     },
+     {
+      "eng": false,
+      "train": 2
+     },
+     {
+      "eng": true,
+      "train": 0
+     },
+     {
+      "eng": false,
+      "train": 3
+     },
+     {
+      "eng": true,
+      "train": 0
+     },
+     {
+      "eng": false,
+      "train": 0
+     }
+    ],
+    "from": "2026-11-02"
+   }
+  ],
+  "schemaVersion": 1,
+  "startDate": "2026-09-03",
+  "workouts": {
+   "1": "горизонтальні тяги",
+   "2": "вертикальні вектори",
+   "3": "комплексні тяги"
+  }
+ },
+ "load/stats": {
+  "broken": 3,
+  "entries": 151,
+  "keys": 155,
+  "packs": 1
+ },
+ "normalizeEntry": {
+  "engDone": "{\"s\":\"done\",\"bonus\":true,\"topic\":\"тттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттттт\",\"hw\":{\"text\":\"Впр. 5\",\"done\":true},\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-01T10:00:00.000Z\"}",
+  "engHwEmpty": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-01T10:00:00.000Z\"}",
+  "engHwOnlyState": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"\",\"hw\":{\"text\":\"\",\"done\":false},\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-01T10:00:00.000Z\"}",
+  "engMiss": "{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":null,\"reasons\":[\"sick\",\"other\"],\"comment\":\"кккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккккк\",\"ts\":\"2026-10-01T10:00:00.000Z\"}",
+  "trainDone": "{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":true,\"energy\":4,\"reasons\":[],\"comment\":\"ок\",\"ts\":\"2026-10-01T10:00:00.000Z\"}",
+  "trainJunk": "{\"s\":\"done\",\"bonus\":false,\"day\":null,\"dur\":null,\"back\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-20T09:00:00.000Z\"}",
+  "trainMiss": "{\"s\":\"miss\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":null,\"energy\":null,\"reasons\":[\"tired\",\"back\"],\"comment\":\"\",\"ts\":\"2026-10-01T10:00:00.000Z\"}"
+ },
+ "openHomework": {
+  "2026-09-10": null,
+  "2026-10-09": null,
+  "2026-12-11": {
+   "date": "2026-12-10",
+   "entry": {
+    "bonus": false,
+    "comment": "",
+    "energy": 5,
+    "hw": {
+     "done": false,
+     "text": "Вправи до 2026-12-10"
+    },
+    "reasons": [],
+    "s": "done",
+    "topic": "Emphasis",
+    "ts": "2026-12-10T18:30:00.000Z"
+   }
+  },
+  "2027-01-20": null,
+  "2027-03-03": {
+   "date": "2027-02-27",
+   "entry": {
+    "bonus": false,
+    "comment": "",
+    "energy": 4,
+    "hw": {
+     "done": null,
+     "text": "Вправи до 2027-02-27"
+    },
+    "reasons": [],
+    "s": "done",
+    "topic": "Question tags",
+    "ts": "2027-02-27T18:30:00.000Z"
+   }
+  }
+ },
+ "openHomework/after-done": null,
+ "pack/2026-10": {
+  "m_2026-10_0": "{\"2026-10-02_train\":{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"lt60\",\"back\":false,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-02T18:30:00.000Z\"},\"2026-10-05_train\":{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"60-70\",\"back\":true,\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-05T18:30:00.000Z\"},\"2026-10-06_eng\":{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":2,\"reasons\":[\"tired\",\"other\"],\"comment\":\"\",\"ts\":\"2026-10-06T18:30:00.000Z\"},\"2026-10-07_train\":{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-07T18:30:00.000Z\"},\"2026-10-08_eng\":{\"s\":\"done\",\"bonus\":false,\"topic\":\"Passive voice\",\"hw\":null,\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-08T18:30:00.000Z\"},\"2026-10-09_train\":{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":false,\"energy\":2,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-09T18:30:00.000Z\"},\"2026-10-13_eng\":{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":1,\"reasons\":[\"sick\"],\"comment\":\"Температура\",\"ts\":\"2026-10-13T18:30:00.000Z\"},\"2026-10-14_train\":{\"s\":\"done\",\"bonus\":true,\"day\":null,\"dur\":\"lt60\",\"back\":false,\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-14T18:30:00.000Z\"},\"2026-10-19_train\":{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"lt60\",\"back\":null,\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-19T18:30:00.000Z\"},\"2026-10-20_eng\":{\"s\":\"done\",\"bonus\":false,\"topic\":\"Articles\",\"hw\":null,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-20T18:30:00.000Z\"},\"2026-10-21_train\":{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":null,\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-21T18:30:00.000Z\"},\"2026-10-22_eng\":{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":null,\"reasons\":[],\"comment\":\"Тютор захворів\",\"ts\":\"2026-10-22T18:30:00.000Z\"},\"2026-10-23_train\":{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":true,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-23T18:30:00.000Z\"},\"2026-10-26_train\":{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"gt70\",\"back\":false,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-26T18:30:00.000Z\"},\"2026-10-27_eng\":{\"s\":\"done\",\"bonus\":false,\"topic\":\"\",\"hw\":{\"text\":\"Вправи до 2026-10-27\",\"done\":true},\"energy\":4,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-27T18:30:00.000Z\"},\"2026-10-28_train\":{\"s\":\"done\",\"bonus\":false,\"day\":3,\"dur\":\"lt60\",\"back\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-28T18:30:00.000Z\"},\"2026-10-29_eng\":{\"s\":\"done\",\"bonus\":false,\"topic\":\"Reported speech\",\"hw\":{\"text\":\"Вправи до 2026-10-29\",\"done\":true},\"energy\":3,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-29T18:30:00.000Z\"},\"2026-10-30_train\":{\"s\":\"done\",\"bonus\":false,\"day\":2,\"dur\":\"60-70\",\"back\":false,\"energy\":1,\"reasons\":[],\"comment\":\"\",\"ts\":\"2026-10-30T18:30:00.000Z\"}}"
+ },
+ "pack/after-edit/keys": [
+  "e_2026-10-06_eng",
+  "m_2026-10_0"
+ ],
+ "pack/after-edit/stats": {
+  "broken": 0,
+  "entries": 150,
+  "keys": 83,
+  "packs": 6
+ },
+ "pack/keys": [
+  "e_2026-12-01_eng",
+  "e_2026-12-02_train",
+  "e_2026-12-03_eng",
+  "e_2026-12-04_train",
+  "e_2026-12-05_eng",
+  "e_2026-12-07_train",
+  "e_2026-12-08_eng",
+  "e_2026-12-09_train",
+  "e_2026-12-10_eng",
+  "e_2026-12-11_train",
+  "e_2026-12-12_eng",
+  "e_2026-12-14_train",
+  "e_2026-12-15_eng",
+  "e_2026-12-16_train",
+  "e_2026-12-17_eng",
+  "e_2026-12-18_train",
+  "e_2026-12-19_eng",
+  "e_2026-12-21_train",
+  "e_2026-12-22_eng",
+  "e_2026-12-23_train",
+  "e_2026-12-24_eng",
+  "e_2026-12-25_train",
+  "e_2026-12-26_eng",
+  "e_2026-12-28_train",
+  "e_2026-12-29_eng",
+  "e_2026-12-30_train",
+  "e_2026-12-31_eng",
+  "e_2027-01-01_train",
+  "e_2027-01-02_eng",
+  "e_2027-01-04_train",
+  "e_2027-01-05_eng",
+  "e_2027-01-06_train",
+  "e_2027-01-08_train",
+  "e_2027-01-09_eng",
+  "e_2027-01-11_train",
+  "e_2027-01-12_eng",
+  "e_2027-01-13_train",
+  "e_2027-01-14_eng",
+  "e_2027-01-15_train",
+  "e_2027-01-16_eng",
+  "e_2027-01-18_train",
+  "e_2027-01-19_eng",
+  "e_2027-01-20_train",
+  "e_2027-01-21_eng",
+  "e_2027-01-22_train",
+  "e_2027-01-23_eng",
+  "e_2027-01-25_train",
+  "e_2027-01-26_eng",
+  "e_2027-01-27_train",
+  "e_2027-01-28_eng",
+  "e_2027-01-29_train",
+  "e_2027-01-30_eng",
+  "e_2027-02-01_train",
+  "e_2027-02-02_eng",
+  "e_2027-02-03_train",
+  "e_2027-02-04_eng",
+  "e_2027-02-05_train",
+  "e_2027-02-06_eng",
+  "e_2027-02-08_train",
+  "e_2027-02-09_eng",
+  "e_2027-02-10_train",
+  "e_2027-02-11_eng",
+  "e_2027-02-12_train",
+  "e_2027-02-13_eng",
+  "e_2027-02-15_train",
+  "e_2027-02-16_eng",
+  "e_2027-02-17_train",
+  "e_2027-02-19_train",
+  "e_2027-02-20_eng",
+  "e_2027-02-22_train",
+  "e_2027-02-23_eng",
+  "e_2027-02-25_eng",
+  "e_2027-02-26_train",
+  "e_2027-02-27_eng",
+  "e_2027-03-01_train",
+  "e_2027-03-02_train",
+  "m_2026-08_0",
+  "m_2026-09_0",
+  "m_2026-09_1",
+  "m_2026-10_0",
+  "m_2026-11_0",
+  "m_2026-11_1",
+  "settings"
+ ],
+ "pack/saved": 69,
+ "pack/stats": {
+  "broken": 0,
+  "entries": 151,
+  "keys": 83,
+  "packs": 6
+ },
+ "saveEntry/cloud": {
+  "e_2027-01-11_train": "{\"s\":\"miss\",\"bonus\":false,\"day\":1,\"dur\":null,\"back\":null,\"energy\":2,\"reasons\":[\"tired\"],\"comment\":\"\",\"ts\":\"2027-01-11T18:30:00.000Z\"}",
+  "e_2027-01-12_eng": "{\"s\":\"miss\",\"bonus\":false,\"topic\":\"\",\"hw\":null,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-12T18:30:00.000Z\"}",
+  "e_2027-01-17_train": "{\"s\":\"done\",\"bonus\":true,\"day\":null,\"dur\":null,\"back\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-20T09:00:00.000Z\"}",
+  "e_2027-01-18_train": "{\"s\":\"done\",\"bonus\":false,\"day\":1,\"dur\":\"gt70\",\"back\":false,\"energy\":5,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-18T18:30:00.000Z\"}",
+  "e_2027-01-19_eng": "{\"s\":\"done\",\"bonus\":false,\"topic\":\"Small talk\",\"hw\":{\"text\":\"Вправи до 2027-01-19\",\"done\":true},\"energy\":4,\"reasons\":[],\"comment\":\"Дописав коментар\",\"ts\":\"2027-01-19T18:30:00.000Z\"}",
+  "e_2027-03-02_eng": "{\"s\":\"done\",\"bonus\":true,\"topic\":\"Pause topic\",\"hw\":null,\"energy\":null,\"reasons\":[],\"comment\":\"\",\"ts\":\"2027-01-20T09:00:00.000Z\"}"
+ },
+ "saveEntry/results": {
+  "bonusTrainSunday": {
+   "back": null,
+   "bonus": true,
+   "comment": "",
+   "day": null,
+   "dur": null,
+   "energy": null,
+   "reasons": [],
+   "s": "done",
+   "ts": "2027-01-20T09:00:00.000Z"
+  },
+  "engInPause": {
+   "bonus": true,
+   "comment": "",
+   "energy": null,
+   "hw": null,
+   "reasons": [],
+   "s": "done",
+   "topic": "Pause topic",
+   "ts": "2027-01-20T09:00:00.000Z"
+  },
+  "engToMiss": {
+   "bonus": false,
+   "comment": "",
+   "energy": 5,
+   "hw": null,
+   "reasons": [],
+   "s": "miss",
+   "topic": "",
+   "ts": "2027-01-12T18:30:00.000Z"
+  },
+  "mergePatch": {
+   "bonus": false,
+   "comment": "Дописав коментар",
+   "energy": 4,
+   "hw": {
+    "done": true,
+    "text": "Вправи до 2027-01-19"
+   },
+   "reasons": [],
+   "s": "done",
+   "topic": "Small talk",
+   "ts": "2027-01-19T18:30:00.000Z"
+  },
+  "missUnplanned": {
+   "back": null,
+   "bonus": false,
+   "comment": "",
+   "day": null,
+   "dur": null,
+   "energy": null,
+   "reasons": [],
+   "s": "miss",
+   "ts": "2027-01-20T09:00:00.000Z"
+  },
+  "plannedTrain": {
+   "back": false,
+   "bonus": false,
+   "comment": "",
+   "day": 1,
+   "dur": "gt70",
+   "energy": 5,
+   "reasons": [],
+   "s": "done",
+   "ts": "2027-01-18T18:30:00.000Z"
+  },
+  "plannedTrainKeepsDay": {
+   "back": null,
+   "bonus": false,
+   "comment": "",
+   "day": 3,
+   "dur": "60-70",
+   "energy": 4,
+   "reasons": [],
+   "s": "done",
+   "ts": "2027-01-20T18:30:00.000Z"
+  },
+  "trainToMiss": {
+   "back": null,
+   "bonus": false,
+   "comment": "",
+   "day": 1,
+   "dur": null,
+   "energy": 2,
+   "reasons": [
+    "tired"
+   ],
+   "s": "miss",
+   "ts": "2027-01-11T18:30:00.000Z"
+  }
+ },
+ "saveEntry/stats": {
+  "broken": 0,
+  "entries": 154,
+  "keys": 155,
+  "packs": 0
+ },
+ "seed/cloud": {
+  "e_2026-09-25_train": {
+   "back": null,
+   "bonus": false,
+   "comment": "",
+   "day": 2,
+   "dur": null,
+   "energy": null,
+   "reasons": [],
+   "s": "done",
+   "ts": "<noon>"
+  },
+  "e_2026-09-28_train": {
+   "back": false,
+   "bonus": false,
+   "comment": "",
+   "day": 1,
+   "dur": "lt60",
+   "energy": null,
+   "reasons": [],
+   "s": "done",
+   "ts": "<noon>"
+  },
+  "settings": "{\"schemaVersion\":1,\"startDate\":\"2026-09-25\",\"schedule\":[{\"from\":\"2000-01-01\",\"days\":[{\"train\":1,\"eng\":false},{\"train\":0,\"eng\":true},{\"train\":3,\"eng\":false},{\"train\":0,\"eng\":true},{\"train\":2,\"eng\":false},{\"train\":0,\"eng\":false},{\"train\":0,\"eng\":false}]}],\"workouts\":{\"1\":\"горизонтальні тяги та стабілізація тазу\",\"2\":\"вертикальні вектори та передня поверхня стегна\",\"3\":\"функціональна стабілізація та комплексні тяги\"},\"pauses\":[],\"checkpoints\":[{\"id\":\"cp-mini\",\"date\":\"2026-10-10\",\"to\":null,\"label\":\"Міні-чек\"},{\"id\":\"cp-review\",\"date\":\"2026-11-07\",\"to\":\"2026-11-08\",\"label\":\"Ревʼю\"}]}"
+ },
+ "seed/stats": {
+  "broken": 0,
+  "entries": 2,
+  "keys": 3,
+  "packs": 0
+ },
+ "topics": [
+  "Question tags",
+  "Used to",
+  "Comparatives",
+  "Relative clauses",
+  "Future forms",
+  "Linking words",
+  "Business email",
+  "Gerund vs infinitive",
+  "Food idioms",
+  "Phrasal Verbs",
+  "Reported speech",
+  "Articles",
+  "Passive voice",
+  "Job interview",
+  "Small talk",
+  "Modal verbs",
+  "Past Simple",
+  "present perfect",
+  "Travel vocabulary",
+  "Conditionals",
+  "Cleft sentences",
+  "Ellipsis",
+  "Inversion",
+  "Emphasis",
+  "Narrative tenses",
+  "Mixed conditionals",
+  "Wish clauses",
+  "Prepositions of time",
+  "Collocations"
+ ]
+}
