@@ -52,7 +52,7 @@
     radial-gradient(80% 45% at 88% 8%, rgba(255, 210, 100, .38), transparent 70%),
     radial-gradient(90% 40% at 10% 70%, rgba(255, 196, 120, .18), transparent 70%);
 }
-:root[data-theme="dark"] .sky-tint { opacity: .55; }
+:root[data-theme="dark"] .sky-tint { opacity: .8; }
 
 /* Зорі: вночі яскраво, увечері ледь-ледь */
 .sky-stars { opacity: 0; transition: opacity 1s; height: 52vh; }
@@ -107,7 +107,7 @@
   box-shadow: inset -11px 5px 0 0 #F2EEDC;
   filter: drop-shadow(0 0 12px rgba(242, 238, 220, .35));
 }
-:root[data-theme="dark"] .sky-body { opacity: .7; }
+:root[data-theme="dark"] .sky-body { opacity: .9; }
 
 /* Літо: промені від сонця */
 :root[data-season="summer"]:not([data-tod="night"]) .sky-body::after {
@@ -147,42 +147,42 @@
 
 /* Земля: власний колір для сезону × часу доби × теми, внизу плавно переходить у фон сторінки.
    Фільтри тут не застосовуються — колір задано явно, тож і в Safari, і в темній темі збігається. */
-:root[data-season="autumn"] { --ground: #E7CBAA; }
-:root[data-season="autumn"][data-tod="evening"] { --ground: #B38767; }
-:root[data-season="autumn"][data-tod="night"] { --ground: #3B302B; }
+:root[data-season="autumn"] { --ground: #F0BE7E; }
+:root[data-season="autumn"][data-tod="evening"] { --ground: #C98A52; }
+:root[data-season="autumn"][data-tod="night"] { --ground: #3E2C22; }
 :root[data-season="winter"] { --ground: #FFFFFF; }
-:root[data-season="winter"][data-tod="evening"] { --ground: #D6D0E6; }
+:root[data-season="winter"][data-tod="evening"] { --ground: #D9D2EC; }
 :root[data-season="winter"][data-tod="night"] { --ground: #34405E; }
-:root[data-season="spring"] { --ground: #C2DE9F; }
-:root[data-season="spring"][data-tod="evening"] { --ground: #8FAA78; }
-:root[data-season="spring"][data-tod="night"] { --ground: #27342B; }
-:root[data-season="summer"] { --ground: #D3DB8A; }
-:root[data-season="summer"][data-tod="evening"] { --ground: #A3A263; }
-:root[data-season="summer"][data-tod="night"] { --ground: #2A3122; }
-:root[data-theme="dark"][data-season="autumn"] { --ground: #36271C; }
-:root[data-theme="dark"][data-season="autumn"][data-tod="evening"] { --ground: #2B1E17; }
-:root[data-theme="dark"][data-season="autumn"][data-tod="night"] { --ground: #1A1411; }
-:root[data-theme="dark"][data-season="winter"] { --ground: #2A3346; }
-:root[data-theme="dark"][data-season="winter"][data-tod="evening"] { --ground: #232A3D; }
+:root[data-season="spring"] { --ground: #B6E88A; }
+:root[data-season="spring"][data-tod="evening"] { --ground: #8CBE69; }
+:root[data-season="spring"][data-tod="night"] { --ground: #22382A; }
+:root[data-season="summer"] { --ground: #B3E06A; }
+:root[data-season="summer"][data-tod="evening"] { --ground: #95BE58; }
+:root[data-season="summer"][data-tod="night"] { --ground: #24381F; }
+:root[data-theme="dark"][data-season="autumn"] { --ground: #5A3517; }
+:root[data-theme="dark"][data-season="autumn"][data-tod="evening"] { --ground: #43291A; }
+:root[data-theme="dark"][data-season="autumn"][data-tod="night"] { --ground: #1E1510; }
+:root[data-theme="dark"][data-season="winter"] { --ground: #2E3D5C; }
+:root[data-theme="dark"][data-season="winter"][data-tod="evening"] { --ground: #262F48; }
 :root[data-theme="dark"][data-season="winter"][data-tod="night"] { --ground: #161B29; }
-:root[data-theme="dark"][data-season="spring"] { --ground: #243420; }
-:root[data-theme="dark"][data-season="spring"][data-tod="evening"] { --ground: #1E2A1B; }
-:root[data-theme="dark"][data-season="spring"][data-tod="night"] { --ground: #131A14; }
-:root[data-theme="dark"][data-season="summer"] { --ground: #2E3520; }
-:root[data-theme="dark"][data-season="summer"][data-tod="evening"] { --ground: #262B1A; }
-:root[data-theme="dark"][data-season="summer"][data-tod="night"] { --ground: #151911; }
+:root[data-theme="dark"][data-season="spring"] { --ground: #24472A; }
+:root[data-theme="dark"][data-season="spring"][data-tod="evening"] { --ground: #1E3822; }
+:root[data-theme="dark"][data-season="spring"][data-tod="night"] { --ground: #111C14; }
+:root[data-theme="dark"][data-season="summer"] { --ground: #2E5220; }
+:root[data-theme="dark"][data-season="summer"][data-tod="evening"] { --ground: #25401B; }
+:root[data-theme="dark"][data-season="summer"][data-tod="night"] { --ground: #131C0F; }
 .ground { fill: var(--ground); transition: fill .8s; }
 .g-top { stop-color: var(--ground); }
 .g-bot { stop-color: var(--bg); }
 
-/* Час доби: фільтр на весь шар-SVG (не на дочірні елементи) */
+/* Час доби: фільтр на весь шар-SVG (не на дочірні елементи).
+   Вдень і вранці — без фільтра (живі кольори); увечері трохи темніше, вночі — темно, але без знебарвлення в сірий. */
 .sc-far, .sc-near { transition: filter .8s; }
-:root[data-tod="morning"] .sc-far, :root[data-tod="morning"] .sc-near { filter: saturate(1.05) sepia(.06); }
-:root[data-tod="evening"] .sc-far, :root[data-tod="evening"] .sc-near { filter: brightness(.76) saturate(.9) sepia(.14); }
-:root[data-tod="night"] .sc-far, :root[data-tod="night"] .sc-near { filter: brightness(.42) saturate(.55); }
-:root[data-theme="dark"] .sc-far, :root[data-theme="dark"] .sc-near { filter: brightness(.8) saturate(.9); }
-:root[data-theme="dark"][data-tod="evening"] .sc-far, :root[data-theme="dark"][data-tod="evening"] .sc-near { filter: brightness(.62) saturate(.85) sepia(.14); }
-:root[data-theme="dark"][data-tod="night"] .sc-far, :root[data-theme="dark"][data-tod="night"] .sc-near { filter: brightness(.36) saturate(.5); }
+:root[data-tod="evening"] .sc-far, :root[data-tod="evening"] .sc-near { filter: brightness(.84) saturate(1.1); }
+:root[data-tod="night"] .sc-far, :root[data-tod="night"] .sc-near { filter: brightness(.55) saturate(.85); }
+:root[data-theme="dark"] .sc-far, :root[data-theme="dark"] .sc-near { filter: brightness(.94) saturate(1.05); }
+:root[data-theme="dark"][data-tod="evening"] .sc-far, :root[data-theme="dark"][data-tod="evening"] .sc-near { filter: brightness(.74) saturate(1.05); }
+:root[data-theme="dark"][data-tod="night"] .sc-far, :root[data-theme="dark"][data-tod="night"] .sc-near { filter: brightness(.5) saturate(.8); }
 
 /* Те, що світиться, — лише ввечері й уночі */
 .sc-lights { opacity: 0; transition: opacity 1s; }
@@ -199,50 +199,51 @@
 :root[data-tod="evening"] .butterfly, :root[data-tod="night"] .butterfly { display: none; }
 
 /* Пагорби */
-.scene-autumn { --hill-far: rgba(217, 138, 78, .55); --hill-mid: rgba(192, 107, 53, .62); }
-.scene-winter { --hill-far: rgba(255, 255, 255, .85); --hill-mid: rgba(222, 233, 246, .95); }
-.scene-spring { --hill-far: rgba(156, 203, 114, .6); --hill-mid: rgba(118, 178, 86, .66); }
-.scene-summer { --hill-far: rgba(214, 196, 96, .55); --hill-mid: rgba(150, 186, 86, .66); }
+/* Пагорби непрозорі — не змішуються з небом у сіро-бежевий */
+.scene-autumn { --hill-far: #F2A65E; --hill-mid: #DB6F2B; }
+.scene-winter { --hill-far: #FFFFFF; --hill-mid: #DCEBFA; }
+.scene-spring { --hill-far: #A4DE6E; --hill-mid: #66C046; }
+.scene-summer { --hill-far: #AEDB5C; --hill-mid: #55B43A; }
 .hill-far { fill: var(--hill-far); }
 .hill-mid { fill: var(--hill-mid); }
 
 /* Спільне */
-.trunk { fill: #6B3F24; }
+.trunk { fill: #6B3A1E; }
 .branch, .twig { fill: none; stroke: #6B3F24; stroke-width: 3; stroke-linecap: round; }
 .twig { stroke: #6B4A2B; stroke-width: 1.6; }
 
 /* Осінь: руде дерево, гарбузи, купки листя */
-.rl-a { fill: #C2521B; } .rl-b { fill: #E0832E; } .rl-c { fill: #A8431A; } .rl-d { fill: #E6A23C; }
-.pk-a { fill: #E47A22; } .pk-b { fill: #D0621A; } .pk-c { fill: #EE8A30; }
-.pk-stem { fill: none; stroke: #5C6B2A; stroke-width: 2.4; stroke-linecap: round; }
-.lf-base { fill: #B5531E; } .lf-a { fill: #D9772B; } .lf-b { fill: #E6A23C; } .lf-c { fill: #9C4B27; } .lf-d { fill: #C2521B; }
+.rl-a { fill: #D9481C; } .rl-b { fill: #F28C28; } .rl-c { fill: #B8321A; } .rl-d { fill: #F7B538; }
+.pk-a { fill: #F57C1F; } .pk-b { fill: #E0621A; } .pk-c { fill: #FF9A3C; }
+.pk-stem { fill: none; stroke: #4F7A24; stroke-width: 2.4; stroke-linecap: round; }
+.lf-base { fill: #C5501C; } .lf-a { fill: #F07F2A; } .lf-b { fill: #F6B03C; } .lf-c { fill: #A8401E; } .lf-d { fill: #D9481C; }
 
 /* Зима: ялинки, сніговик, замети */
-.fir { fill: #2E5D4B; }
+.fir { fill: #1C6B4A; }
 .fir-snow { fill: #FFFFFF; }
 .drift { fill: #FFFFFF; stroke: rgba(150, 175, 205, .7); stroke-width: 1; }
 .snow-body { fill: #FDFEFF; stroke: #A9BDD4; stroke-width: 1.2; }
-.scarf { fill: #C0283F; }
+.scarf { fill: #D0213F; }
 .hat { fill: #2B3440; }
 .coal { fill: #263238; }
-.carrot { fill: #E8742A; }
+.carrot { fill: #F57C1F; }
 
 /* Весна: квітучі дерева, проліски, пташки, метелики */
-.bl-a { fill: #F7B6C8; } .bl-b { fill: #FBD3DF; } .bl-c { fill: #FFFFFF; } .bl-d { fill: #F29DB6; }
-.stem-thin { fill: none; stroke: #4E8A3A; stroke-width: 1.2; stroke-linecap: round; }
-.sc-a { fill: #4F74E3; } .sc-b { fill: #7C98F2; }
+.bl-a { fill: #FF8FB5; } .bl-b { fill: #FFC2D6; } .bl-c { fill: #FFFFFF; } .bl-d { fill: #F76E9E; }
+.stem-thin { fill: none; stroke: #3C8F2A; stroke-width: 1.2; stroke-linecap: round; }
+.sc-a { fill: #3B6CF6; } .sc-b { fill: #6E8FFF; }
 .scilla-eye { fill: #F4F1C8; }
 .bird-line { fill: none; stroke: #3A3F4A; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.bf-a { fill: #F6C945; } .bf-b { fill: #F29DB6; }
+.bf-a { fill: #FFC400; } .bf-b { fill: #FF7AA8; }
 .bf-body { fill: none; stroke: #3A2E2A; stroke-width: 1.2; stroke-linecap: round; }
 
 /* Літо: хмаринки, соняшники */
-.cloud-body { fill: #FFFFFF; opacity: .92; }
-.grass { fill: none; stroke: #6E9B45; stroke-width: 1.4; stroke-linecap: round; }
-.sf-stem { fill: none; stroke: #4E7D2C; stroke-width: 2.6; stroke-linecap: round; }
-.sf-leaf { fill: #5E9435; }
-.sf-petal { fill: #F5B81C; }
-.sf-core { fill: #6B4518; }
+.cloud-body { fill: #FFFFFF; }
+.grass { fill: none; stroke: #3E9A2C; stroke-width: 1.4; stroke-linecap: round; }
+.sf-stem { fill: none; stroke: #3C8F2A; stroke-width: 2.6; stroke-linecap: round; }
+.sf-leaf { fill: #4DAA35; }
+.sf-petal { fill: #FFC312; }
+.sf-core { fill: #5A3310; }
 
 /* ——— Частинки (≤ 20, лише transform/opacity) ———
    Лише в шапці «Сьогодні»: шар завдовжки з шапку, за контентом (картки непрозорі). */

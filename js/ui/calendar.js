@@ -2,7 +2,7 @@
 import { daysInMonth, fmtLong, keyOf, MONTHS, plural, todayKey, WEEKDAYS_CAP } from '../dates.js';
 import { HABITS, HABIT_IDS } from '../entry.js';
 import { dayInfo, monthSummary } from '../schedule.js';
-import { seasonOf } from '../seasons.js';
+import { SEASONS, seasonOf } from '../seasons.js';
 import { haptic } from '../tg.js';
 import { h, icon } from './dom.js';
 import { openDaySheet } from './day-sheet.js';
@@ -91,8 +91,11 @@ export function renderCalendar(container, ctx) {
   const now = new Date();
   if (!view) view = { y: now.getFullYear(), m: now.getMonth() };
   const isCurrent = view.y === now.getFullYear() && view.m === now.getMonth();
+  // Палітра — сезон місяця, що переглядається (не реальна дата і не превʼю).
+  // Ставиться на власний контейнер календаря, тож не залежить від глобального стану <html>.
+  const season = calendarSeason();
 
-  // Календар фарбується палітрою сезону місяця, що переглядається.
+  // Фон і декор навколо теж підлаштовуються під цей сезон (syncLook).
   const rerender = () => { syncLook?.(); renderCalendar(container, ctx); };
   const go = (n) => { shift(n); haptic.select(); rerender(); };
 
@@ -118,18 +121,20 @@ export function renderCalendar(container, ctx) {
 
   const card = h('section', { class: 'card cal' },
     h('div', { class: 'cal-nav' },
-      h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Попередній місяць', onclick: () => go(-1) }, icon('chevronL')),
+      h('button', { type: 'button', class: 'icon-btn cal-arrow', 'aria-label': 'Попередній місяць', onclick: () => go(-1) }, icon('chevronL')),
       h('div', { class: 'cal-title' },
         h('h2', null, `${MONTHS[view.m]} ${view.y}`),
-        !isCurrent && h('button', { type: 'button', class: 'today-link', onclick: () => { view = null; rerender(); } }, 'до сьогодні')),
-      h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Наступний місяць', onclick: () => go(1) }, icon('chevronR'))),
+        h('div', { class: 'cal-sub' },
+          h('span', { class: 'season-tag' }, `${SEASONS[season].emoji} ${SEASONS[season].name}`),
+          !isCurrent && h('button', { type: 'button', class: 'today-link', onclick: () => { view = null; rerender(); } }, 'до сьогодні'))),
+      h('button', { type: 'button', class: 'icon-btn cal-arrow', 'aria-label': 'Наступний місяць', onclick: () => go(1) }, icon('chevronR'))),
     h('div', { class: 'cal-week', 'aria-hidden': 'true' }, WEEKDAYS_CAP.map((w, i) => h('span', { class: i > 4 ? 'we' : '' }, w))),
     grid);
 
-  container.replaceChildren(
+  container.replaceChildren(h('div', { class: 'cal-page', 'data-pal': season },
     h('header', { class: 'page-head' }, h('h1', null, 'Календар')),
     h('div', { class: 'page-body' }, card, legend(), summary(store)),
-  );
+  ));
   arrow = go;
 }
 
