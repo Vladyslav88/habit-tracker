@@ -50,6 +50,7 @@ const ICONS = {
   clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
   flag: '<path d="M6 21V4M6 4.5h11l-2.5 4 2.5 4H6"/>',
   swap: '<path d="M4 8h14l-3-3M20 16H6l3 3"/>',
+  medal: '<circle cx="12" cy="14.5" r="5.5"/><path d="M9 9.5 6.5 3.5h3.5l2 4 2-4h3.5L15 9.5"/><path d="m12 12 .9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2-1.45-1.4 2-.3z"/>',
 };
 
 export function icon(name, cls = '') {
