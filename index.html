@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="uk" data-theme="light" data-season="autumn" data-tod="day">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="format-detection" content="telephone=no">
+  <title>Habit Tracker</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600&display=swap">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    // Тема до першого малювання, щоб не блимало світлим у темному Telegram.
+    (function () {
+      var w = window.Telegram && window.Telegram.WebApp;
+      var inTg = w && w.platform && w.platform !== 'unknown';
+      var dark = inTg ? w.colorScheme === 'dark' : window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    })();
+  </script>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/decor.css">
+  <link rel="stylesheet" href="css/views.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <div id="sky" aria-hidden="true">
+    <div class="sky-grad"></div>
+    <div class="sky-tint"></div>
+    <div class="sky-stars"></div>
+    <div class="sky-body"></div>
+    <div class="frost"></div>
+  </div>
+  <div id="particles" aria-hidden="true"></div>
+
+  <div id="banner" class="banner" hidden></div>
+  <div id="app">
+    <main id="view">
+      <div class="boot" role="status">
+        <div class="boot-dot"></div>
+        <p>Завантажую…</p>
+      </div>
+    </main>
+  </div>
+  <nav id="tabs" class="tabs" aria-label="Розділи" hidden></nav>
+  <button id="sync" class="sync" type="button" data-status="saved" hidden></button>
+  <div id="layers"></div>
+
+  <noscript><p class="noscript">Для роботи потрібен JavaScript.</p></noscript>
+</body>
+</html>
