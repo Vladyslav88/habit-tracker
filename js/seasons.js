@@ -31,6 +31,16 @@ export function timeOfDay(date) {
   return 'night';
 }
 
+/**
+ * Привітання — лише за реальним місцевим часом (ранок 5–12, день 12–18, вечір 18–23, ніч 23–5),
+ * не залежить від превʼю. Межі відрізняються від меж неба (SPEC §6).
+ */
+export function greetingFor(date = new Date()) {
+  const h = date.getHours();
+  const key = h >= 5 && h < 12 ? 'morning' : h >= 12 && h < 18 ? 'day' : h >= 18 && h < 23 ? 'evening' : 'night';
+  return TIMES[key].greeting;
+}
+
 // ——— Превʼю дизайну ———
 // Вмикається посиланням ?season=…&time=…&garland=1 або в «Про застосунок».
 // Живе лише в памʼяті: параметри одразу прибираються з адреси, тож перезавантаження

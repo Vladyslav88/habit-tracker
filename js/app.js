@@ -1,6 +1,6 @@
 // Точка входу: Telegram, тема, сховище, вкладки, годинник.
 import { fmtTime, todayKey } from './dates.js';
-import { clearPreview, currentLook, getPreview, isPreview, onPreviewChange, readPreviewFromUrl, renderParticles, SEASONS, TIMES } from './seasons.js';
+import { clearPreview, currentLook, getPreview, greetingFor, isPreview, onPreviewChange, readPreviewFromUrl, renderParticles, SEASONS, TIMES } from './seasons.js';
 import { createStorage } from './storage.js';
 import { createStore } from './store.js';
 import {
@@ -35,6 +35,7 @@ if (!TABS.some((t) => t.id === current)) current = 'today';
 readPreviewFromUrl();
 let look = currentLook();
 let lastDay = todayKey();
+let lastGreeting = greetingFor();
 
 // ——— Оформлення ———
 
@@ -180,8 +181,10 @@ function tick() {
   document.querySelectorAll('[data-clock]').forEach((el) => { el.textContent = fmtTime(now); });
   const day = todayKey();
   const changed = applyLook();
-  if (day !== lastDay || changed) {
+  const greeting = greetingFor(now);
+  if (day !== lastDay || changed || greeting !== lastGreeting) {
     lastDay = day;
+    lastGreeting = greeting;
     if (store.settings) render();
   }
   setTimeout(tick, 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 50);

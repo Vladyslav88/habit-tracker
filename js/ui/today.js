@@ -2,7 +2,7 @@
 import { fmtDay, fmtLong, fmtShort, fmtTime, relDays, todayKey } from '../dates.js';
 import { HABITS, HABIT_IDS } from '../entry.js';
 import { sceneMarkup } from '../scenes.js';
-import { currentLook, SEASONS, TIMES } from '../seasons.js';
+import { currentLook, greetingFor, SEASONS } from '../seasons.js';
 import { entryId, planFor, unmarked, upcoming } from '../schedule.js';
 import { firstName, haptic } from '../tg.js';
 import { h, icon } from './dom.js';
@@ -115,7 +115,7 @@ function upcomingList(store, today) {
 
 function renderHero(look, key, now = new Date()) {
   const s = SEASONS[look.season];
-  const greet = TIMES[look.tod].greeting + (firstName ? `, ${firstName}` : '');
+  const greet = greetingFor(now) + (firstName ? `, ${firstName}` : '');
   const hero = h('section', { class: 'hero', 'data-key': key },
     h('div', { class: 'hero-top' }, h('span', { class: 'season-chip' }, `${s.emoji} ${s.name}`)),
     h('p', { class: 'greeting' }, greet),
@@ -172,7 +172,7 @@ export function renderToday(view, { store }) {
   if (next && plan.habits.length) body.append(h('h2', { class: 'section-title' }, 'Далі за розкладом'), next);
 
   // Шапку не перебудовуємо без потреби — інакше анімації сцени починалися б спочатку після кожного тапу.
-  const key = [look.season, look.tod, today, firstName].join('|');
+  const key = [look.season, look.tod, greetingFor(), today, firstName].join('|');
   const oldHero = view.querySelector(':scope > .hero');
   const oldBody = view.querySelector(':scope > .today-body');
   if (oldHero && oldBody && oldHero.dataset.key === key) {
