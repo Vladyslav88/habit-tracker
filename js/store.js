@@ -36,6 +36,20 @@ export function normalizeAch(raw) {
   return out;
 }
 
+/**
+ * Злиття двох наборів досягнень за id (SPEC §8): обʼєднання, при конфлікті — найраніша дата.
+ * Чиста: входи не змінюються. Порядок аргументів і повторне застосування результату не змінюють.
+ */
+export function mergeAch(a, b) {
+  const out = { ...a };
+  for (const [id, date] of Object.entries(b)) {
+    if (!out[id] || date < out[id]) out[id] = date;
+  }
+  return out;
+}
+
+const sameAch = (a, b) => Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([id, d]) => b[id] === d);
+
 function parseJson(str) {
   if (!str) return null;
   try { return JSON.parse(str); } catch { return null; }
@@ -50,6 +64,7 @@ export function createStore(storage) {
   let keyCount = 0;
   let broken = 0;
   let loadedAt = 0;
+  let refreshing = null;
   const subs = new Set();
 
   const emit = () => subs.forEach((fn) => fn());
@@ -57,9 +72,10 @@ export function createStore(storage) {
   async function readAll() {
     const keys = await storage.getKeys();
     const values = keys.length ? await storage.getItems(keys) : {};
-    // Незбережені зміни важливіші за те, що зараз у хмарі.
+    // Незбережені зміни важливіші за те, що зараз у хмарі (злиття — поверх хмарного значення).
     for (const [k, item] of storage.pendingOps()) {
       if (item.op === 'set') values[k] = item.value;
+      else if (item.op === 'update') values[k] = item.fn(values[k] ?? '');
       else delete values[k];
     }
     return values;
@@ -200,6 +216,41 @@ export function createStore(storage) {
     return saved;
   }
 
+  async function pull() {
+    const gen = storage.writes;
+    const values = await readAll();
+    if (!storage.idle || storage.writes !== gen) return false;
+    const parsed = ingest(values);
+    if (parsed.keyCount === 0) return false;
+    entries = parsed.entries;
+    packOf = parsed.packOf;
+    packs = parsed.packs;
+    broken = parsed.broken;
+    keyCount = parsed.keyCount;
+    settings = normalizeSettings(parsed.settingsRaw, settings.startDate);
+    // Досягнення не замінюються, а зливаються: застарілий запис з іншого пристрою не забирає отримане тут.
+    const cloudAch = normalizeAch(parsed.achRaw);
+    ach = mergeAch(ach, cloudAch);
+    if (!sameAch(ach, cloudAch)) writeAch();
+    loadedAt = Date.now();
+    emit();
+    return true;
+  }
+
+  /**
+   * Записати ach злиттям: прямо перед записом читається те, що в сховищі, і обʼєднується з локальним
+   * (mergeAch). Потім локальний набір підтягує дати, що прийшли зі сховища. Проміс — { before } зі storage.update.
+   */
+  function writeAch() {
+    return storage.update(ACH_KEY, (raw) => JSON.stringify(mergeAch(normalizeAch(parseJson(raw)), ach))).then((res) => {
+      if (res.before !== null) {
+        const next = mergeAch(ach, normalizeAch(parseJson(res.before)));
+        if (!sameAch(next, ach)) { ach = next; emit(); }
+      }
+      return res;
+    });
+  }
+
   const api = {
     get settings() { return settings; },
     get entries() { return entries; },
@@ -230,23 +281,16 @@ export function createStore(storage) {
       emit();
     },
 
-    /** Підтягнути зміни з іншого пристрою (якщо немає незбережених записів). */
-    async refresh(minAgeMs = 20000) {
-      if (!settings || Date.now() - loadedAt < minAgeMs || !storage.idle) return false;
-      const values = await readAll();
-      if (!storage.idle) return false;
-      const parsed = ingest(values);
-      if (parsed.keyCount === 0) return false;
-      entries = parsed.entries;
-      packOf = parsed.packOf;
-      packs = parsed.packs;
-      broken = parsed.broken;
-      keyCount = parsed.keyCount;
-      settings = normalizeSettings(parsed.settingsRaw, settings.startDate);
-      ach = normalizeAch(parsed.achRaw);
-      loadedAt = Date.now();
-      emit();
-      return true;
+    /**
+     * Підтягнути зміни з іншого пристрою (якщо немає незбережених записів). Не частіше ніж раз на minAgeMs;
+     * одночасні виклики (focus + visibilitychange) — один запит. Якщо під час читання щось записали
+     * (навіть уже встигли зберегти) — прочитане могло застаріти, тож нічого не застосовуємо.
+     */
+    refresh(minAgeMs = 20000) {
+      if (refreshing) return refreshing;
+      if (!settings || Date.now() - loadedAt < minAgeMs || !storage.idle) return Promise.resolve(false);
+      refreshing = pull().finally(() => { refreshing = null; });
+      return refreshing;
     },
 
     getEntry: (date, habit) => entries.get(entryId(date, habit)) || null,
@@ -290,19 +334,25 @@ export function createStore(storage) {
 
     /**
      * Позначити досягнення отриманими (дата — сьогодні). Уже отримані не перезаписуються.
-     * Пишеться одним ключем `ach` через ту саму чергу, що й записи. Повертає id нових.
+     * Пишеться одним ключем `ach` через ту саму чергу, що й записи, злиттям з тим, що зараз у сховищі
+     * (див. writeAch). Повертає { added, fresh }: added — id, нові для цього пристрою (одразу в ach);
+     * fresh — проміс зі списком тих із них, яких не було й у сховищі, тобто справді нових (їх і святкувати).
+     * Решту вже отримав інший пристрій: беремо його дату, шторку не показуємо.
      */
     grantAchievements(ids, date = todayKey()) {
       const add = ids.filter((id) => ACH_ID_RE.test(id) && !ach[id]);
-      if (!add.length) return [];
+      if (!add.length) return { added: [], fresh: Promise.resolve([]) };
       const next = { ...ach };
       for (const id of add) next[id] = date;
-      const hadKey = Object.keys(ach).length > 0;
-      storage.set(ACH_KEY, JSON.stringify(next));
-      if (!hadKey) keyCount++;
+      if (!Object.keys(ach).length) keyCount++;
       ach = next;
       emit();
-      return add;
+      const fresh = writeAch().then(({ before }) => {
+        if (before === null) return add.filter((id) => ach[id]);
+        const cloud = normalizeAch(parseJson(before));
+        return add.filter((id) => ach[id] && !cloud[id]);
+      });
+      return { added: add, fresh };
     },
 
     /** Попередні теми англійської — для автопідказок (новіші першими, без повторів). */

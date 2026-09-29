@@ -111,8 +111,8 @@ function celebrate(store, list) {
 }
 
 /**
- * Стежить за змінами даних: нове досягнення одразу зберігається, а показується,
- * коли закрито всі шторки й екрани (щоб не перебивати форму відмітки).
+ * Стежить за змінами даних: нове досягнення одразу зберігається, а показується після запису
+ * (якщо воно справді нове) і коли закрито всі шторки й екрани (щоб не перебивати форму відмітки).
  */
 export function watchAchievements(store) {
   const queue = [];
@@ -132,17 +132,22 @@ export function watchAchievements(store) {
   const check = () => {
     checkTimer = null;
     if (!store.settings) return;
-    const fresh = newlyEarned(store.settings, store.entries, store.ach, todayKey());
-    if (!fresh.length) return;
+    const earned = newlyEarned(store.settings, store.entries, store.ach, todayKey());
+    if (!earned.length) return;
+    let res;
     try {
-      store.grantAchievements(fresh.map((a) => a.id));
+      res = store.grantAchievements(earned.map((a) => a.id));
     } catch (err) {
       toast(err.message, { type: 'error' });
       return;
     }
-    const order = ACHIEVEMENTS.map((a) => a.id);
-    queue.push(...fresh.sort((x, y) => order.indexOf(x.id) - order.indexOf(y.id)));
-    show();
+    // Святкуємо лише справді нове: те, чого ще не було в сховищі (інакше його вже відсвяткував інший пристрій).
+    // Шторка чекає на запис; поки немає мережі — чекає й вона (не записалось — не святкуємо).
+    res.fresh.then((ids) => {
+      if (!ids.length) return;
+      queue.push(...ACHIEVEMENTS.filter((a) => ids.includes(a.id)));
+      show();
+    });
   };
 
   // Відкладено: запис і відкриття форми відбуваються в одному обробнику тапу.
