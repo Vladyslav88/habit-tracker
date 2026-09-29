@@ -1,163 +1,165 @@
-/* ——— Сезонні палітри (SPEC §6) ———
+/* ——— Сезонні палітри (SPEC §6), версія 0.2.1 ———
    Кожен сезон має пару кольорів звичок (тренування / англійська) і акцент інтерфейсу.
-   Палітра береться з найближчого [data-pal]: <html> — поточний сезон (або сезон місяця,
-   що переглядається в календарі), шторка дня — сезон своєї дати.
+   Палітра береться з найближчого [data-pal]: <html> — поточний сезон (або превʼю),
+   контейнер календаря — сезон місяця, що переглядається, шторка дня — сезон своєї дати.
 
    Для кожної звички:
-   --x       заливка (кнопки, кружечки «виконано»)
+   --x       заливка (кнопки, фігури «виконано», кільце «заплановано»)
    --x-ink   текст на заливці (контраст ≥ 4.5:1)
    --x-fg    кольоровий текст/іконки на картці (≥ 4.5:1)
-   --x-edge  обвідка заливки; для світлих заливок (персик, жовтий) — темніша, щоб мати ≥ 3:1 до фону
-   --x-soft  легкий тон (заплановано, фон іконок)
+   --x-edge  обвідка/кільце: сама заливка, а для світлих заливок (персик, жовтий у світлій темі) — темніша,
+             щоб фігура мала ≥ 3:1 до картки
+   --x-soft  напівпрозорий тон (фон «заплановано», іконок)
    --x-line  пунктир «не відмічено»
-   Контраст перевірено за WCAG 2.1 для світлої і темної тем. */
+   Кольори насичені (OKLCH chroma ≈ 0.13–0.21); контраст перевірено за WCAG 2.1 для обох тем.
+   Не змішуються з темною базою: жодних color-mix чи фільтрів поверх палітри. */
 
 [data-pal="autumn"] {
-  --train: #C4500D; /* гарбузовий */
-  --train-ink: #FFFFFF;
-  --train-fg: #A84306;
-  --train-edge: #C4500D;
-  --train-soft: rgba(196, 80, 13, 0.2);
-  --train-line: rgba(168, 67, 6, 0.7);
-  --eng: #8E4F9E; /* світлий сливовий */
+  --train: #E2620C; /* гарбузовий */
+  --train-ink: #16110B;
+  --train-fg: #B34A05;
+  --train-edge: #E2620C;
+  --train-soft: rgba(226, 98, 12, 0.22);
+  --train-line: #B34A05;
+  --eng: #9B3DB8; /* сливовий */
   --eng-ink: #FFFFFF;
-  --eng-fg: #7A3F8A;
-  --eng-edge: #8E4F9E;
-  --eng-soft: rgba(142, 79, 158, 0.2);
-  --eng-line: rgba(122, 63, 138, 0.7);
-  --accent: #8F3E12;
+  --eng-fg: #8A2FA6;
+  --eng-edge: #9B3DB8;
+  --eng-soft: rgba(155, 61, 184, 0.22);
+  --eng-line: #8A2FA6;
+  --accent: #A16207; /* золотий */
   --accent-ink: #FFFFFF;
-  --accent-soft: rgba(143, 62, 18, 0.14);
+  --accent-soft: rgba(161, 98, 7, 0.14);
 }
 
 [data-pal="winter"] {
-  --train: #2471B3; /* крижаний синій */
+  --train: #1976D2; /* крижаний синій */
   --train-ink: #FFFFFF;
-  --train-fg: #1B5F98;
-  --train-edge: #2471B3;
-  --train-soft: rgba(36, 113, 179, 0.2);
-  --train-line: rgba(27, 95, 152, 0.7);
-  --eng: #C0283F; /* журавлинний */
+  --train-fg: #1565C0;
+  --train-edge: #1976D2;
+  --train-soft: rgba(25, 118, 210, 0.22);
+  --train-line: #1565C0;
+  --eng: #D0213F; /* журавлинний */
   --eng-ink: #FFFFFF;
-  --eng-fg: #A51F34;
-  --eng-edge: #C0283F;
-  --eng-soft: rgba(192, 40, 63, 0.2);
-  --eng-line: rgba(165, 31, 52, 0.7);
-  --accent: #1F4A78;
+  --eng-fg: #B81B37;
+  --eng-edge: #D0213F;
+  --eng-soft: rgba(208, 33, 63, 0.22);
+  --eng-line: #B81B37;
+  --accent: #166534; /* хвойний */
   --accent-ink: #FFFFFF;
-  --accent-soft: rgba(31, 74, 120, 0.14);
+  --accent-soft: rgba(22, 101, 52, 0.14);
 }
 
 [data-pal="spring"] {
-  --train: #F9A47C; /* персиковий */
-  --train-ink: #3A1606;
-  --train-fg: #B04C20;
-  --train-edge: #B04C20;
-  --train-soft: rgba(249, 164, 124, 0.2);
-  --train-line: rgba(176, 76, 32, 0.7);
-  --eng: #387F19; /* свіжий салатовий */
-  --eng-ink: #FFFFFF;
-  --eng-fg: #336F16;
-  --eng-edge: #387F19;
-  --eng-soft: rgba(56, 127, 25, 0.2);
-  --eng-line: rgba(51, 111, 22, 0.7);
-  --accent: #B0356C;
+  --train: #FF8F63; /* персиковий */
+  --train-ink: #16110B;
+  --train-fg: #B8481C;
+  --train-edge: #B8481C;
+  --train-soft: rgba(255, 143, 99, 0.22);
+  --train-line: #B8481C;
+  --eng: #45A21C; /* салатовий */
+  --eng-ink: #16110B;
+  --eng-fg: #357E15;
+  --eng-edge: #45A21C;
+  --eng-soft: rgba(69, 162, 28, 0.22);
+  --eng-line: #357E15;
+  --accent: #BE185D; /* квітковий рожевий */
   --accent-ink: #FFFFFF;
-  --accent-soft: rgba(176, 53, 108, 0.14);
+  --accent-soft: rgba(190, 24, 93, 0.14);
 }
 
 [data-pal="summer"] {
-  --train: #137D40; /* насичений зелений */
-  --train-ink: #FFFFFF;
-  --train-fg: #106B37;
-  --train-edge: #137D40;
-  --train-soft: rgba(19, 125, 64, 0.2);
-  --train-line: rgba(16, 107, 55, 0.7);
-  --eng: #F4BC16; /* сонячний жовтий */
-  --eng-ink: #342500;
-  --eng-fg: #8A6300;
-  --eng-edge: #8A6300;
-  --eng-soft: rgba(244, 188, 22, 0.2);
-  --eng-line: rgba(138, 99, 0, 0.7);
-  --accent: #17688C;
+  --train: #0F9D58; /* насичений зелений */
+  --train-ink: #16110B;
+  --train-fg: #0B7A44;
+  --train-edge: #0F9D58;
+  --train-soft: rgba(15, 157, 88, 0.22);
+  --train-line: #0B7A44;
+  --eng: #FFC107; /* сонячний жовтий */
+  --eng-ink: #16110B;
+  --eng-fg: #8F6500;
+  --eng-edge: #8F6500;
+  --eng-soft: rgba(255, 193, 7, 0.22);
+  --eng-line: #8F6500;
+  --accent: #0369A1; /* небесний */
   --accent-ink: #FFFFFF;
-  --accent-soft: rgba(23, 104, 140, 0.14);
+  --accent-soft: rgba(3, 105, 161, 0.14);
 }
 
 :root[data-theme="dark"][data-pal="autumn"],
 :root[data-theme="dark"] [data-pal="autumn"] {
-  --train: #FF8A3D; /* гарбузовий */
-  --train-ink: #2A1204;
-  --train-fg: #FF9C5A;
-  --train-edge: #FF8A3D;
-  --train-soft: rgba(255, 138, 61, 0.2);
-  --train-line: rgba(255, 156, 90, 0.7);
-  --eng: #D4A2E0; /* світлий сливовий */
-  --eng-ink: #2B1133;
-  --eng-fg: #DDB3E8;
-  --eng-edge: #D4A2E0;
-  --eng-soft: rgba(212, 162, 224, 0.2);
-  --eng-line: rgba(221, 179, 232, 0.7);
-  --accent: #E8C07A;
-  --accent-ink: #2A1D05;
-  --accent-soft: rgba(232, 192, 122, 0.18);
+  --train: #FF7B1C; /* гарбузовий */
+  --train-ink: #16110B;
+  --train-fg: #FF8F3F;
+  --train-edge: #FF7B1C;
+  --train-soft: rgba(255, 123, 28, 0.3);
+  --train-line: #FF8F3F;
+  --eng: #D57BEA; /* сливовий */
+  --eng-ink: #16110B;
+  --eng-fg: #DE90F0;
+  --eng-edge: #D57BEA;
+  --eng-soft: rgba(213, 123, 234, 0.3);
+  --eng-line: #DE90F0;
+  --accent: #FACC15; /* золотий */
+  --accent-ink: #16110B;
+  --accent-soft: rgba(250, 204, 21, 0.2);
 }
 
 :root[data-theme="dark"][data-pal="winter"],
 :root[data-theme="dark"] [data-pal="winter"] {
-  --train: #7CC5F4; /* крижаний синій */
-  --train-ink: #06253A;
-  --train-fg: #8FCDF6;
-  --train-edge: #7CC5F4;
-  --train-soft: rgba(124, 197, 244, 0.2);
-  --train-line: rgba(143, 205, 246, 0.7);
-  --eng: #FF6F87; /* журавлинний */
-  --eng-ink: #3A0612;
-  --eng-fg: #FF8699;
-  --eng-edge: #FF6F87;
-  --eng-soft: rgba(255, 111, 135, 0.2);
-  --eng-line: rgba(255, 134, 153, 0.7);
-  --accent: #C4C0F2;
-  --accent-ink: #1A1740;
-  --accent-soft: rgba(196, 192, 242, 0.18);
+  --train: #3DA5FF; /* крижаний синій */
+  --train-ink: #16110B;
+  --train-fg: #5CB3FF;
+  --train-edge: #3DA5FF;
+  --train-soft: rgba(61, 165, 255, 0.3);
+  --train-line: #5CB3FF;
+  --eng: #FF4F6E; /* журавлинний */
+  --eng-ink: #16110B;
+  --eng-fg: #FF6B85;
+  --eng-edge: #FF4F6E;
+  --eng-soft: rgba(255, 79, 110, 0.3);
+  --eng-line: #FF6B85;
+  --accent: #6EE7A0; /* хвойний */
+  --accent-ink: #16110B;
+  --accent-soft: rgba(110, 231, 160, 0.2);
 }
 
 :root[data-theme="dark"][data-pal="spring"],
 :root[data-theme="dark"] [data-pal="spring"] {
-  --train: #FFB892; /* персиковий */
-  --train-ink: #3A1606;
-  --train-fg: #FFC2A2;
-  --train-edge: #FFB892;
-  --train-soft: rgba(255, 184, 146, 0.2);
-  --train-line: rgba(255, 194, 162, 0.7);
-  --eng: #6FBF3A; /* свіжий салатовий */
-  --eng-ink: #0E2204;
-  --eng-fg: #8CD25A;
-  --eng-edge: #6FBF3A;
-  --eng-soft: rgba(111, 191, 58, 0.2);
-  --eng-line: rgba(140, 210, 90, 0.7);
-  --accent: #F59AC2;
-  --accent-ink: #3A0A22;
-  --accent-soft: rgba(245, 154, 194, 0.18);
+  --train: #FF8F5C; /* персиковий */
+  --train-ink: #16110B;
+  --train-fg: #FFA27A;
+  --train-edge: #FF8F5C;
+  --train-soft: rgba(255, 143, 92, 0.3);
+  --train-line: #FFA27A;
+  --eng: #74CF3A; /* салатовий */
+  --eng-ink: #16110B;
+  --eng-fg: #8BD95A;
+  --eng-edge: #74CF3A;
+  --eng-soft: rgba(116, 207, 58, 0.3);
+  --eng-line: #8BD95A;
+  --accent: #F9A8D4; /* квітковий рожевий */
+  --accent-ink: #16110B;
+  --accent-soft: rgba(249, 168, 212, 0.2);
 }
 
 :root[data-theme="dark"][data-pal="summer"],
 :root[data-theme="dark"] [data-pal="summer"] {
-  --train: #4FD186; /* насичений зелений */
-  --train-ink: #06301A;
-  --train-fg: #62D793;
-  --train-edge: #4FD186;
-  --train-soft: rgba(79, 209, 134, 0.2);
-  --train-line: rgba(98, 215, 147, 0.7);
-  --eng: #FFD54A; /* сонячний жовтий */
-  --eng-ink: #332500;
-  --eng-fg: #FFDB63;
-  --eng-edge: #FFD54A;
-  --eng-soft: rgba(255, 213, 74, 0.2);
-  --eng-line: rgba(255, 219, 99, 0.7);
-  --accent: #6CC7E8;
-  --accent-ink: #05293A;
-  --accent-soft: rgba(108, 199, 232, 0.18);
+  --train: #2FD27A; /* насичений зелений */
+  --train-ink: #16110B;
+  --train-fg: #4ADB8B;
+  --train-edge: #2FD27A;
+  --train-soft: rgba(47, 210, 122, 0.3);
+  --train-line: #4ADB8B;
+  --eng: #FFD21F; /* сонячний жовтий */
+  --eng-ink: #16110B;
+  --eng-fg: #FFDA47;
+  --eng-edge: #FFD21F;
+  --eng-soft: rgba(255, 210, 31, 0.3);
+  --eng-line: #FFDA47;
+  --accent: #7DD3FC; /* небесний */
+  --accent-ink: #16110B;
+  --accent-soft: rgba(125, 211, 252, 0.2);
 }
 
 /* Звичка → поточні кольори (--hc*) */

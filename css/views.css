@@ -145,10 +145,30 @@
 .empty-line { padding: 4px; text-align: center; }
 
 /* ——— Календар ——— */
-.cal { padding: 12px 10px 14px; }
+.cal { position: relative; overflow: hidden; padding: 16px 10px 14px; }
+/* Сезонна смужка зверху картки: видно сезон місяця навіть у порожньому місяці */
+.cal::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--train) 0 33%, var(--accent) 33% 67%, var(--eng) 67%);
+}
 .cal-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px; }
-.cal-title { display: grid; justify-items: center; }
-.cal-title h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; }
+.cal-arrow { background: var(--accent-soft); color: var(--accent); }
+.cal-title { display: grid; justify-items: center; gap: 4px; }
+.cal-title h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--accent); }
+.cal-sub { display: flex; align-items: center; gap: 8px; }
+.season-tag {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+}
 .today-link { border: 0; background: none; color: var(--accent); font-size: 13px; font-weight: 650; min-height: 24px; }
 .cal-week, .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .cal-week { margin: 12px 0 4px; text-align: center; font-size: 12px; font-weight: 700; color: var(--ink-3); }
@@ -188,8 +208,9 @@
 .habit-eng .disc, .lg-disc.habit-eng { border-radius: 30%; }
 .st-rest .disc { color: var(--ink-2); font-weight: 500; }
 .st-done .disc { background: var(--hc); color: var(--hc-ink); box-shadow: inset 0 0 0 1.5px var(--hc-edge); }
-.st-planned .disc { background: var(--hc-soft); color: var(--hc-fg); font-weight: 750; box-shadow: inset 0 0 0 1.5px var(--hc-line); }
-.st-unmarked .disc { border: 2px dashed var(--hc-line); }
+/* «Заплановано»: суцільне кільце кольору звички + тон — фігура чітко читається на картці */
+.st-planned .disc { background: var(--hc-soft); color: var(--hc-fg); font-weight: 750; box-shadow: inset 0 0 0 2px var(--hc-edge); }
+.st-unmarked .disc { border: 2px dashed var(--hc-line); color: var(--hc-fg); }
 .st-miss .disc { box-shadow: inset 0 0 0 1.8px var(--ink-3); color: var(--ink-2); }
 .st-miss .disc::before, .st-miss .disc::after {
   content: "";
@@ -235,7 +256,7 @@
 }
 .mk.habit-eng { border-radius: 4px; }
 .mk.st-done { background: var(--hc); color: var(--hc-ink); box-shadow: inset 0 0 0 1.2px var(--hc-edge); }
-.mk.st-planned { background: var(--hc-soft); box-shadow: inset 0 0 0 1.5px var(--hc-line); }
+.mk.st-planned { background: var(--hc-soft); box-shadow: inset 0 0 0 1.8px var(--hc-edge); }
 .mk.st-unmarked { border: 1.5px dashed var(--hc-line); }
 .mk.st-miss { box-shadow: inset 0 0 0 1.5px var(--ink-3); color: var(--ink-3); }
 
@@ -272,7 +293,7 @@
 .lg { display: inline-flex; align-items: center; gap: 6px; }
 .lg-disc { position: relative; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; line-height: 1; }
 .lg-disc.st-done { background: var(--hc); box-shadow: inset 0 0 0 1.5px var(--hc-edge); }
-.lg-disc.st-planned { background: var(--hc-soft); box-shadow: inset 0 0 0 1.5px var(--hc-line); }
+.lg-disc.st-planned { background: var(--hc-soft); box-shadow: inset 0 0 0 2px var(--hc-edge); }
 .lg-disc.st-unmarked { border: 1.5px dashed var(--hc-line); }
 .lg-disc.st-miss { box-shadow: inset 0 0 0 1.5px var(--ink-3); color: var(--ink-3); }
 .lg-disc.is-pause { background: repeating-linear-gradient(135deg, var(--hatch) 0 1.6px, transparent 1.6px 4.2px); box-shadow: inset 0 0 0 1.5px var(--ink-3); }
@@ -290,7 +311,8 @@
 .sum-name .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--hc); box-shadow: inset 0 0 0 1.2px var(--hc-edge); }
 .sum-val { color: var(--ink-2); font-size: 14.5px; }
 .sum-val b { color: var(--ink); font-size: 17px; }
-.bar { height: 7px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+/* Доріжка тонована кольором звички — сезон видно навіть при 0% */
+.bar { height: 8px; border-radius: 4px; background: var(--hc-soft); overflow: hidden; }
 .bar i { display: block; height: 100%; border-radius: 4px; background: var(--hc); box-shadow: inset 0 0 0 1px var(--hc-edge); transition: width .5s ease; }
 
 /* ——— Шторка дня ——— */
