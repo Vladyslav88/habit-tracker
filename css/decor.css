@@ -141,33 +141,127 @@
 .frost::after { right: 0; transform: scaleX(-1); }
 :root[data-theme="dark"] .frost::before, :root[data-theme="dark"] .frost::after { opacity: .28; }
 
-/* ——— Пагорби внизу шапки ——— */
-.landscape { display: block; width: calc(100% + 40px); height: 64px; margin: 12px -20px -1px; }
-.ls-front { fill: var(--bg); }
-.ls-back, .ls-trees { transition: fill .6s; }
-:root[data-season="autumn"] .ls-back { fill: rgba(199, 119, 63, .55); }
-:root[data-season="autumn"] .ls-trees { fill: rgba(160, 80, 40, .75); }
-:root[data-season="winter"] .ls-back { fill: rgba(255, 255, 255, .8); }
-:root[data-season="winter"] .ls-trees { fill: rgba(96, 124, 156, .6); }
-:root[data-season="spring"] .ls-back { fill: rgba(141, 195, 112, .6); }
-:root[data-season="spring"] .ls-trees { fill: rgba(86, 150, 70, .78); }
-:root[data-season="summer"] .ls-back { fill: rgba(201, 180, 88, .55); }
-:root[data-season="summer"] .ls-trees { fill: rgba(96, 146, 62, .78); }
-:root[data-theme="dark"][data-season="winter"] .ls-back { fill: rgba(70, 86, 116, .7); }
-:root[data-tod="evening"] .landscape .ls-back, :root[data-tod="evening"] .landscape .ls-trees,
-:root[data-tod="night"] .landscape .ls-back, :root[data-tod="night"] .landscape .ls-trees,
-:root[data-theme="dark"] .landscape .ls-back, :root[data-theme="dark"] .landscape .ls-trees { filter: brightness(.62) saturate(.9); }
+/* ——— Сезонна сцена в шапці «Сьогодні» (js/scenes.js) ——— */
+.scene { position: relative; height: 140px; margin: -40px -20px 0; pointer-events: none; }
+.scene svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* ——— Частинки (≤ 20, лише transform/opacity) ——— */
+/* Земля: власний колір для сезону × часу доби × теми, внизу плавно переходить у фон сторінки.
+   Фільтри тут не застосовуються — колір задано явно, тож і в Safari, і в темній темі збігається. */
+:root[data-season="autumn"] { --ground: #E7CBAA; }
+:root[data-season="autumn"][data-tod="evening"] { --ground: #B38767; }
+:root[data-season="autumn"][data-tod="night"] { --ground: #3B302B; }
+:root[data-season="winter"] { --ground: #FFFFFF; }
+:root[data-season="winter"][data-tod="evening"] { --ground: #D6D0E6; }
+:root[data-season="winter"][data-tod="night"] { --ground: #34405E; }
+:root[data-season="spring"] { --ground: #C2DE9F; }
+:root[data-season="spring"][data-tod="evening"] { --ground: #8FAA78; }
+:root[data-season="spring"][data-tod="night"] { --ground: #27342B; }
+:root[data-season="summer"] { --ground: #D3DB8A; }
+:root[data-season="summer"][data-tod="evening"] { --ground: #A3A263; }
+:root[data-season="summer"][data-tod="night"] { --ground: #2A3122; }
+:root[data-theme="dark"][data-season="autumn"] { --ground: #36271C; }
+:root[data-theme="dark"][data-season="autumn"][data-tod="evening"] { --ground: #2B1E17; }
+:root[data-theme="dark"][data-season="autumn"][data-tod="night"] { --ground: #1A1411; }
+:root[data-theme="dark"][data-season="winter"] { --ground: #2A3346; }
+:root[data-theme="dark"][data-season="winter"][data-tod="evening"] { --ground: #232A3D; }
+:root[data-theme="dark"][data-season="winter"][data-tod="night"] { --ground: #161B29; }
+:root[data-theme="dark"][data-season="spring"] { --ground: #243420; }
+:root[data-theme="dark"][data-season="spring"][data-tod="evening"] { --ground: #1E2A1B; }
+:root[data-theme="dark"][data-season="spring"][data-tod="night"] { --ground: #131A14; }
+:root[data-theme="dark"][data-season="summer"] { --ground: #2E3520; }
+:root[data-theme="dark"][data-season="summer"][data-tod="evening"] { --ground: #262B1A; }
+:root[data-theme="dark"][data-season="summer"][data-tod="night"] { --ground: #151911; }
+.ground { fill: var(--ground); transition: fill .8s; }
+.g-top { stop-color: var(--ground); }
+.g-bot { stop-color: var(--bg); }
+
+/* Час доби: фільтр на весь шар-SVG (не на дочірні елементи) */
+.sc-far, .sc-near { transition: filter .8s; }
+:root[data-tod="morning"] .sc-far, :root[data-tod="morning"] .sc-near { filter: saturate(1.05) sepia(.06); }
+:root[data-tod="evening"] .sc-far, :root[data-tod="evening"] .sc-near { filter: brightness(.76) saturate(.9) sepia(.14); }
+:root[data-tod="night"] .sc-far, :root[data-tod="night"] .sc-near { filter: brightness(.42) saturate(.55); }
+:root[data-theme="dark"] .sc-far, :root[data-theme="dark"] .sc-near { filter: brightness(.8) saturate(.9); }
+:root[data-theme="dark"][data-tod="evening"] .sc-far, :root[data-theme="dark"][data-tod="evening"] .sc-near { filter: brightness(.62) saturate(.85) sepia(.14); }
+:root[data-theme="dark"][data-tod="night"] .sc-far, :root[data-theme="dark"][data-tod="night"] .sc-near { filter: brightness(.36) saturate(.5); }
+
+/* Те, що світиться, — лише ввечері й уночі */
+.sc-lights { opacity: 0; transition: opacity 1s; }
+:root[data-tod="evening"] .sc-lights { opacity: .55; }
+:root[data-tod="night"] .sc-lights { opacity: 1; }
+.pk-face { fill: #FFD66B; }
+.garland { display: none; }
+:root[data-garland][data-tod="night"] .garland { display: inline; }
+.garland-wire { fill: none; stroke: #1E2630; stroke-width: .9; }
+.bulb.b0 { fill: #FF5A5A; } .bulb.b1 { fill: #FFD24D; } .bulb.b2 { fill: #5AD1FF; } .bulb.b3 { fill: #7CFF8A; }
+
+/* Пташки й метелики — лише вдень */
+:root[data-tod="evening"] .bird, :root[data-tod="night"] .bird,
+:root[data-tod="evening"] .butterfly, :root[data-tod="night"] .butterfly { display: none; }
+
+/* Пагорби */
+.scene-autumn { --hill-far: rgba(217, 138, 78, .55); --hill-mid: rgba(192, 107, 53, .62); }
+.scene-winter { --hill-far: rgba(255, 255, 255, .85); --hill-mid: rgba(222, 233, 246, .95); }
+.scene-spring { --hill-far: rgba(156, 203, 114, .6); --hill-mid: rgba(118, 178, 86, .66); }
+.scene-summer { --hill-far: rgba(214, 196, 96, .55); --hill-mid: rgba(150, 186, 86, .66); }
+.hill-far { fill: var(--hill-far); }
+.hill-mid { fill: var(--hill-mid); }
+
+/* Спільне */
+.trunk { fill: #6B3F24; }
+.branch, .twig { fill: none; stroke: #6B3F24; stroke-width: 3; stroke-linecap: round; }
+.twig { stroke: #6B4A2B; stroke-width: 1.6; }
+
+/* Осінь: руде дерево, гарбузи, купки листя */
+.rl-a { fill: #C2521B; } .rl-b { fill: #E0832E; } .rl-c { fill: #A8431A; } .rl-d { fill: #E6A23C; }
+.pk-a { fill: #E47A22; } .pk-b { fill: #D0621A; } .pk-c { fill: #EE8A30; }
+.pk-stem { fill: none; stroke: #5C6B2A; stroke-width: 2.4; stroke-linecap: round; }
+.lf-base { fill: #B5531E; } .lf-a { fill: #D9772B; } .lf-b { fill: #E6A23C; } .lf-c { fill: #9C4B27; } .lf-d { fill: #C2521B; }
+
+/* Зима: ялинки, сніговик, замети */
+.fir { fill: #2E5D4B; }
+.fir-snow { fill: #FFFFFF; }
+.drift { fill: #FFFFFF; stroke: rgba(150, 175, 205, .7); stroke-width: 1; }
+.snow-body { fill: #FDFEFF; stroke: #A9BDD4; stroke-width: 1.2; }
+.scarf { fill: #C0283F; }
+.hat { fill: #2B3440; }
+.coal { fill: #263238; }
+.carrot { fill: #E8742A; }
+
+/* Весна: квітучі дерева, проліски, пташки, метелики */
+.bl-a { fill: #F7B6C8; } .bl-b { fill: #FBD3DF; } .bl-c { fill: #FFFFFF; } .bl-d { fill: #F29DB6; }
+.stem-thin { fill: none; stroke: #4E8A3A; stroke-width: 1.2; stroke-linecap: round; }
+.sc-a { fill: #4F74E3; } .sc-b { fill: #7C98F2; }
+.scilla-eye { fill: #F4F1C8; }
+.bird-line { fill: none; stroke: #3A3F4A; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.bf-a { fill: #F6C945; } .bf-b { fill: #F29DB6; }
+.bf-body { fill: none; stroke: #3A2E2A; stroke-width: 1.2; stroke-linecap: round; }
+
+/* Літо: хмаринки, соняшники */
+.cloud-body { fill: #FFFFFF; opacity: .92; }
+.grass { fill: none; stroke: #6E9B45; stroke-width: 1.4; stroke-linecap: round; }
+.sf-stem { fill: none; stroke: #4E7D2C; stroke-width: 2.6; stroke-linecap: round; }
+.sf-leaf { fill: #5E9435; }
+.sf-petal { fill: #F5B81C; }
+.sf-core { fill: #6B4518; }
+
+/* ——— Частинки (≤ 20, лише transform/opacity) ———
+   Лише в шапці «Сьогодні»: шар завдовжки з шапку, за контентом (картки непрозорі). */
 #particles {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 1;
+  height: var(--fx-h, 360px);
   pointer-events: none;
   overflow: hidden;
   max-width: var(--maxw);
   margin: 0 auto;
+  display: none;
+  -webkit-mask-image: linear-gradient(#000 72%, transparent);
+  mask-image: linear-gradient(#000 72%, transparent);
 }
+:root[data-tab="today"] #particles { display: block; }
 .p {
   position: absolute;
   left: var(--x);
@@ -200,12 +294,20 @@
   .p.glare { animation: drift var(--d) ease-in-out var(--delay) infinite alternate; }
   .sky-stars::after { animation: twinkle 3.8s ease-in-out infinite alternate; }
   :root[data-season="summer"]:not([data-tod="night"]) .sky-body::after { animation: spin 120s linear infinite; }
+
+  .glow { animation: flicker 2.6s ease-in-out calc(var(--i) * -.9s) infinite alternate; }
+  .bulb { animation: twinkle 1.4s ease-in-out calc(var(--i) * -.37s) infinite alternate; }
+  .cloud { animation: cloud-drift 22s ease-in-out calc(var(--i) * -9s) infinite alternate; }
+  .bird { animation: bird-fly 11s ease-in-out calc(var(--i) * -3s) infinite alternate; }
+  .bird-line { transform-box: fill-box; transform-origin: center; animation: flap .5s ease-in-out calc(var(--i) * -.17s) infinite alternate; }
+  .butterfly { animation: flutter 7s ease-in-out calc(var(--i) * -2.5s) infinite alternate; }
+  .bf-wings { transform-box: fill-box; transform-origin: center; animation: wings .22s ease-in-out infinite alternate; }
 }
 @keyframes fall {
   0% { transform: translate3d(0, 0, 0); opacity: 0; }
   8% { opacity: var(--o, .9); }
-  78% { opacity: var(--o, .9); }
-  100% { transform: translate3d(var(--dx), 66vh, 0); opacity: 0; }
+  75% { opacity: var(--o, .9); }
+  100% { transform: translate3d(var(--dx), var(--fx-h, 360px), 0); opacity: 0; }
 }
 @keyframes sway {
   from { transform: translateX(-12px) rotate(calc(var(--r) - 30deg)); }
@@ -219,3 +321,9 @@
 }
 @keyframes twinkle { from { opacity: .25; } to { opacity: 1; } }
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes flicker { from { opacity: .55; } 40% { opacity: 1; } 70% { opacity: .75; } to { opacity: .95; } }
+@keyframes cloud-drift { from { transform: translateX(-12px); } to { transform: translateX(14px); } }
+@keyframes bird-fly { from { transform: translate(-10px, 2px); } to { transform: translate(14px, -4px); } }
+@keyframes flap { from { transform: scaleY(1); } to { transform: scaleY(.45); } }
+@keyframes flutter { 0% { transform: translate(0, 0); } 50% { transform: translate(14px, -8px); } 100% { transform: translate(26px, 2px); } }
+@keyframes wings { from { transform: scaleX(1); } to { transform: scaleX(.35); } }

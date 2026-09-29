@@ -1,13 +1,13 @@
 // Точка входу: Telegram, тема, сховище, вкладки, годинник.
 import { fmtTime, todayKey } from './dates.js';
-import { currentLook, renderParticles } from './seasons.js';
+import { clearPreview, currentLook, getPreview, isPreview, readPreviewFromUrl, renderParticles, SEASONS, TIMES } from './seasons.js';
 import { createStorage } from './storage.js';
 import { createStore } from './store.js';
 import {
   cloudAvailable, colorScheme, initTelegram, isTelegram, onColorSchemeChange, onResume,
   setChromeColors, setClosingConfirmation, tg,
 } from './tg.js';
-import { calendarArrow, renderCalendar, resetCalendar } from './ui/calendar.js';
+import { calendarArrow, calendarSeason, renderCalendar, resetCalendar } from './ui/calendar.js';
 import { $, h, icon } from './ui/dom.js';
 import { depth, initNav } from './ui/nav.js';
 import { renderSettings } from './ui/settings.js';
@@ -32,6 +32,7 @@ let current = 'today';
 try { current = sessionStorage.getItem('ht_tab') || 'today'; } catch { /* ignore */ }
 if (!TABS.some((t) => t.id === current)) current = 'today';
 
+readPreviewFromUrl();
 let look = currentLook();
 let lastDay = todayKey();
 
@@ -50,12 +51,27 @@ function syncChrome() {
   setChromeColors(cssVar('--sky1'), cssVar('--bg'));
 }
 
+/**
+ * Сезон, час доби, палітра. «Сьогодні» й інші вкладки — поточний сезон (або превʼю),
+ * календар — сезон місяця, що переглядається. Повертає true, якщо вигляд змінився.
+ */
 function applyLook() {
+  const before = [root.dataset.season, root.dataset.tod, root.hasAttribute('data-garland')].join();
   look = currentLook();
-  root.dataset.season = look.season;
+  const season = current === 'calendar' ? calendarSeason() : look.season;
+  root.dataset.season = season;
+  root.dataset.pal = season;
   root.dataset.tod = look.tod;
+  root.dataset.tab = current;
+  root.toggleAttribute('data-garland', look.garland);
   renderParticles($('#particles'), look.season, look.tod);
   syncChrome();
+  showBanner();
+  return before !== [season, look.tod, look.garland].join();
+}
+
+function relook() {
+  applyLook();
   if (store.settings) render();
 }
 
@@ -79,6 +95,17 @@ const store = createStore(storage);
 
 function showBanner() {
   const banner = $('#banner');
+  if (isPreview()) {
+    const p = getPreview();
+    const parts = [p.season && `${SEASONS[p.season].emoji} ${SEASONS[p.season].name}`, p.tod && TIMES[p.tod].name.toLowerCase(), p.garland && 'гірлянда'].filter(Boolean);
+    banner.hidden = false;
+    banner.dataset.kind = 'preview';
+    banner.replaceChildren(h('span', null, `Превʼю: ${parts.join(' · ')}`),
+      h('button', { type: 'button', class: 'banner-btn', onclick: () => { clearPreview(); relook(); toast('Превʼю вимкнено'); } }, 'Вийти'));
+    root.classList.add('has-banner');
+    return;
+  }
+  delete banner.dataset.kind;
   let text = '';
   if (storage.mode === 'local') text = isTelegram ? 'Стара версія Telegram — дані лише на цьому пристрої' : 'Режим браузера, дані лише на цьому пристрої';
   if (storage.mode === 'memory') text = 'Сховище браузера недоступне — дані зникнуть після закриття';
@@ -132,6 +159,7 @@ function select(id) {
     try { sessionStorage.setItem('ht_tab', id); } catch { /* ignore */ }
     window.scrollTo(0, 0);
   }
+  applyLook();
   renderTabs();
   render();
 }
@@ -139,7 +167,7 @@ function select(id) {
 function render() {
   const tab = TABS.find((t) => t.id === current);
   view.dataset.tab = current;
-  tab.render(view, { store, look, applyLook });
+  tab.render(view, { store, look, relook, syncLook: applyLook });
 }
 
 // ——— Годинник і зміна дня ———
@@ -147,13 +175,11 @@ function render() {
 function tick() {
   const now = new Date();
   document.querySelectorAll('[data-clock]').forEach((el) => { el.textContent = fmtTime(now); });
-  const next = currentLook(now);
   const day = todayKey();
-  if (day !== lastDay) {
+  const changed = applyLook();
+  if (day !== lastDay || changed) {
     lastDay = day;
-    applyLook(); // також перемальовує вкладку
-  } else if (next.season !== look.season || next.tod !== look.tod) {
-    applyLook();
+    if (store.settings) render();
   }
   setTimeout(tick, 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 50);
 }

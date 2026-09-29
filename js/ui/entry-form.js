@@ -212,8 +212,19 @@ function stepsFor(habit, s, bonus) {
 
 // ——— Відмітка + покрокова форма ———
 
+/**
+ * Показати сторінку форми: у новій шторці або (якщо є host — ctx сторінки чи шторка)
+ * замість поточного вмісту тієї ж шторки.
+ */
+function showPage(page, host, { replace = false } = {}) {
+  if (!host) return openSheet(page);
+  if (replace) host.replace(page);
+  else host.push(page);
+  return host;
+}
+
 /** Ставить статус (обовʼязкове поле) і відкриває покрокову форму опційних полів. */
-export function markAndAsk(store, date, habit, s, extra = {}) {
+export function markAndAsk(store, date, habit, s, extra = {}, host = null, opts = {}) {
   let entry;
   try {
     entry = store.saveEntry(date, habit, { s, ...extra, ts: new Date().toISOString() });
@@ -222,10 +233,10 @@ export function markAndAsk(store, date, habit, s, extra = {}) {
     return;
   }
   haptic.light();
-  openStepForm(store, date, habit, entry);
+  openStepForm(store, date, habit, entry, host, opts);
 }
 
-export function openStepForm(store, date, habit, entry) {
+export function openStepForm(store, date, habit, entry, host = null, opts = {}) {
   const steps = stepsFor(habit, entry.s, entry.bonus);
   const draft = structuredClone(entry);
   let i = 0;
@@ -242,11 +253,11 @@ export function openStepForm(store, date, habit, entry) {
   };
 
   const statusText = entry.s === 'done' ? (entry.bonus ? 'бонус ✓' : 'виконано ✓') : 'пропуск';
-  return openSheet({
+  return showPage({
     title: habitTitle(store, habit, date, entry),
     subtitle: `${fmtShort(date)} · ${statusText}`,
     className: `sheet-steps habit-${habit}`,
-    onClose: flush,
+    onLeave: flush,
     render(body, sheet) {
       const progress = h('div', { class: 'progress', 'aria-hidden': 'true' }, steps.map(() => h('i')));
       const stage = h('div', { class: 'step-stage' });
@@ -303,17 +314,17 @@ export function openStepForm(store, date, habit, entry) {
       nextBtn.addEventListener('click', () => go(i + 1));
       go(0);
     },
-  });
+  }, host, opts);
 }
 
 // ——— Повний редактор ———
 
-export function openEntryEditor(store, date, habit) {
+export function openEntryEditor(store, date, habit, host = null) {
   const existing = store.getEntry(date, habit);
   if (!existing) return null;
   const draft = structuredClone(existing);
 
-  return openSheet({
+  return showPage({
     title: habitTitle(store, habit, date, existing),
     subtitle: fmtShort(date) + (existing.bonus ? ' · бонус' : ''),
     className: `sheet-editor habit-${habit}`,
@@ -321,7 +332,8 @@ export function openEntryEditor(store, date, habit) {
       const fieldsBox = h('div', { class: 'editor-fields' });
       const ctx = { store, draft, set: (patch) => Object.assign(draft, patch) };
 
-      const statusSwitch = h('div', { class: 'segmented' },
+      // Для бонусу «не виконав» не має сенсу — перемикач статусу ховаємо.
+      const statusSwitch = existing.bonus && existing.s === 'done' ? null : h('div', { class: 'segmented' },
         ['done', 'miss'].map((s) => h('button', {
           type: 'button',
           class: 'seg',
@@ -330,7 +342,7 @@ export function openEntryEditor(store, date, habit) {
         }, s === 'done' ? 'Виконав' : 'Не виконав')));
 
       function paint() {
-        statusSwitch.querySelectorAll('.seg').forEach((b) => b.classList.toggle('on', b.dataset.s === draft.s));
+        statusSwitch?.querySelectorAll('.seg').forEach((b) => b.classList.toggle('on', b.dataset.s === draft.s));
         const keys = stepsFor(habit, draft.s, habit === 'train' && existing.bonus);
         fieldsBox.replaceChildren(...keys.map((k) => h('section', { class: 'editor-field' },
           h('h3', { class: 'field-title' }, FIELDS[k].q),
@@ -370,7 +382,7 @@ export function openEntryEditor(store, date, habit) {
         },
       }, icon('trash'), 'Видалити запис');
 
-      body.append(statusSwitch, fieldsBox, h('div', { class: 'sheet-actions stacked' }, save, del));
+      body.append(statusSwitch || '', fieldsBox, h('div', { class: 'sheet-actions stacked' }, save, del));
     },
-  });
+  }, host);
 }

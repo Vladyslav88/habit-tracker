@@ -67,7 +67,7 @@
   place-items: center;
   border-radius: 15px;
   background: var(--hc-soft);
-  color: var(--hc);
+  color: var(--hc-fg);
 }
 .hicon .ic { width: 26px; height: 26px; }
 .hicon-sm { width: 40px; height: 40px; border-radius: 13px; }
@@ -132,13 +132,13 @@
 .list-card { padding: 4px 0; }
 .list-row { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 12px 8px 16px; }
 .list-row + .list-row { border-top: 1px solid var(--line); }
-.list-row .dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--hc); }
-.list-row .dot-soft { background: var(--hc-soft); box-shadow: inset 0 0 0 2px var(--hc); }
+.list-row .dot { flex: none; width: 11px; height: 11px; border-radius: 50%; background: var(--hc); box-shadow: inset 0 0 0 1.2px var(--hc-edge); }
+.list-row .dot-soft { background: var(--hc-soft); box-shadow: inset 0 0 0 2px var(--hc-fg); }
 .list-main { flex: 1; min-width: 0; display: grid; }
 .list-main strong { font-size: 15.5px; font-weight: 700; }
 .list-main .small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .list-actions { display: flex; gap: 6px; }
-.icon-done { background: var(--hc-soft); color: var(--hc); }
+.icon-done { background: var(--hc-soft); color: var(--hc-fg); }
 .list-when { display: grid; justify-items: end; color: var(--ink-2); white-space: nowrap; }
 .list-when b { color: var(--ink); text-transform: capitalize; }
 .pause-ic { color: var(--ink-3); }
@@ -149,7 +149,7 @@
 .cal-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px; }
 .cal-title { display: grid; justify-items: center; }
 .cal-title h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; }
-.today-link { border: 0; background: none; color: var(--eng); font-size: 13px; font-weight: 650; min-height: 24px; }
+.today-link { border: 0; background: none; color: var(--accent); font-size: 13px; font-weight: 650; min-height: 24px; }
 .cal-week, .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .cal-week { margin: 12px 0 4px; text-align: center; font-size: 12px; font-weight: 700; color: var(--ink-3); }
 .cal-week .we { opacity: .7; }
@@ -183,9 +183,12 @@
 }
 .day:active .disc { transform: scale(.9); }
 .num { position: relative; z-index: 1; }
+
+/* Форма звички (не лише колір): тренування — коло, англійська — заокруглений квадрат */
+.habit-eng .disc, .lg-disc.habit-eng { border-radius: 30%; }
 .st-rest .disc { color: var(--ink-2); font-weight: 500; }
-.st-done .disc { background: var(--hc); color: var(--hc-ink); }
-.st-planned .disc { background: var(--hc-soft); color: var(--hc); font-weight: 750; }
+.st-done .disc { background: var(--hc); color: var(--hc-ink); box-shadow: inset 0 0 0 1.5px var(--hc-edge); }
+.st-planned .disc { background: var(--hc-soft); color: var(--hc-fg); font-weight: 750; box-shadow: inset 0 0 0 1.5px var(--hc-line); }
 .st-unmarked .disc { border: 2px dashed var(--hc-line); }
 .st-miss .disc { box-shadow: inset 0 0 0 1.8px var(--ink-3); color: var(--ink-2); }
 .st-miss .disc::before, .st-miss .disc::after {
@@ -203,30 +206,39 @@
 }
 .st-miss .disc::after { transform: rotate(-45deg); }
 .st-miss .num { text-shadow: 0 0 3px var(--surface), 0 0 3px var(--surface); }
-.is-pause .disc { background: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 6px); color: var(--ink-2); box-shadow: none; border: 0; }
-.is-today .disc { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); }
-.is-today.st-miss .disc { box-shadow: inset 0 0 0 1.8px var(--ink-3), 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); }
+
+/* Пауза — помітна штриховка з обвідкою */
+.is-pause .disc {
+  background: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 5.5px);
+  box-shadow: inset 0 0 0 1.5px var(--line-2);
+  border: 0;
+  color: var(--ink);
+}
+.is-pause .num { padding: 0 3px; border-radius: 6px; background: var(--surface); }
+
+/* Сьогодні — рамка навколо (outline не конфліктує з іншими обвідками) */
+.is-today .disc { outline: 2px solid var(--ink); outline-offset: 2px; }
 .is-today.st-rest .disc { font-weight: 800; color: var(--ink); }
 
-.sat {
-  position: absolute;
-  top: 1px;
-  right: calc(50% - 25px);
-  width: 16px;
-  height: 16px;
+/* Дві звички в один день: номер і дві мітки-форми */
+.is-pair .disc { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 13px; line-height: 1; }
+.marks { display: flex; gap: 3px; }
+.mk {
+  width: 14px;
+  height: 14px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  border: 2px solid var(--surface);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   line-height: 1;
-  z-index: 2;
 }
-.sat.st-done { background: var(--hc); color: var(--hc-ink); }
-.sat.st-planned { background: var(--hc-soft); box-shadow: inset 0 0 0 1.5px var(--hc); }
-.sat.st-unmarked { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--hc-line); }
-.sat.st-miss { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--ink-3); }
+.mk.habit-eng { border-radius: 4px; }
+.mk.st-done { background: var(--hc); color: var(--hc-ink); box-shadow: inset 0 0 0 1.2px var(--hc-edge); }
+.mk.st-planned { background: var(--hc-soft); box-shadow: inset 0 0 0 1.5px var(--hc-line); }
+.mk.st-unmarked { border: 1.5px dashed var(--hc-line); }
+.mk.st-miss { box-shadow: inset 0 0 0 1.5px var(--ink-3); color: var(--ink-3); }
+
 .bonus-mark {
   position: absolute;
   top: 1px;
@@ -256,33 +268,34 @@
   z-index: 2;
 }
 
-.legend { display: flex; flex-wrap: wrap; gap: 8px 14px; padding: 0 6px; font-size: 12.5px; color: var(--ink-2); }
+.legend { display: flex; flex-wrap: wrap; gap: 9px 14px; padding: 0 6px; font-size: 12.5px; color: var(--ink-2); }
 .lg { display: inline-flex; align-items: center; gap: 6px; }
-.lg-disc { position: relative; width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 800; }
-.lg-disc.st-done { background: var(--hc); color: var(--hc-ink); }
-.lg-disc.st-planned { background: var(--hc-soft); }
+.lg-disc { position: relative; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; line-height: 1; }
+.lg-disc.st-done { background: var(--hc); box-shadow: inset 0 0 0 1.5px var(--hc-edge); }
+.lg-disc.st-planned { background: var(--hc-soft); box-shadow: inset 0 0 0 1.5px var(--hc-line); }
 .lg-disc.st-unmarked { border: 1.5px dashed var(--hc-line); }
-.lg-disc.st-miss { box-shadow: inset 0 0 0 1.5px var(--ink-3); }
-.lg-disc.st-miss::before, .lg-disc.st-miss::after { content: ""; position: absolute; left: 3px; right: 3px; top: 50%; height: 1.4px; margin-top: -.7px; background: var(--ink-3); transform: rotate(45deg); }
-.lg-disc.st-miss::after { transform: rotate(-45deg); }
-.lg-disc.is-pause { background: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 5px); box-shadow: inset 0 0 0 1px var(--line-2); }
+.lg-disc.st-miss { box-shadow: inset 0 0 0 1.5px var(--ink-3); color: var(--ink-3); }
+.lg-disc.is-pause { background: repeating-linear-gradient(135deg, var(--hatch) 0 1.6px, transparent 1.6px 4.2px); box-shadow: inset 0 0 0 1.5px var(--ink-3); }
 .lg-disc.is-today { box-shadow: inset 0 0 0 2px var(--ink); }
-.lg-disc.lg-bonus { background: var(--hc); color: var(--hc-ink); }
-.lg-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--danger); margin: 0 3px; }
+.lg-disc.lg-bonus { background: var(--hc); color: var(--hc-ink); box-shadow: inset 0 0 0 1.5px var(--hc-edge); }
+.lg-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); margin: 0 4px; }
+.lg-pair { display: inline-flex; gap: 2px; }
+.lg-pair .mk { width: 12px; height: 12px; }
 
 .month-sum { display: grid; gap: 14px; }
 .sum-title { font-size: 15px; font-weight: 750; }
 .sum-row { display: grid; gap: 6px; }
 .sum-line { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .sum-name { display: inline-flex; align-items: center; gap: 8px; font-weight: 650; }
-.sum-name .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--hc); }
+.sum-name .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--hc); box-shadow: inset 0 0 0 1.2px var(--hc-edge); }
 .sum-val { color: var(--ink-2); font-size: 14.5px; }
 .sum-val b { color: var(--ink); font-size: 17px; }
 .bar { height: 7px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
-.bar i { display: block; height: 100%; border-radius: 4px; background: var(--hc); transition: width .5s ease; }
+.bar i { display: block; height: 100%; border-radius: 4px; background: var(--hc); box-shadow: inset 0 0 0 1px var(--hc-edge); transition: width .5s ease; }
 
 /* ——— Шторка дня ——— */
-.sheet-day .sheet-body { display: grid; gap: 14px; }
+.sheet-day .sheet-page { display: grid; gap: 14px; }
+.day-block.is-muted { opacity: .72; }
 .day-block { display: grid; gap: 12px; padding: 14px; border-radius: 18px; background: var(--surface-2); }
 .day-block .pill-miss, .day-block .pill-open { background: var(--surface); }
 .day-block-actions { display: flex; gap: 8px; }
@@ -292,7 +305,7 @@
 .day-empty { padding: 10px 2px; }
 .day-note { text-align: center; }
 .day-bonus { display: flex; flex-wrap: wrap; gap: 8px; }
-.day-bonus .btn { color: var(--hc); }
+.day-bonus .btn { color: var(--hc-fg); }
 
 .details { margin: 0; display: grid; gap: 8px; }
 .drow { display: grid; grid-template-columns: 110px 1fr; gap: 10px; font-size: 14.5px; }
@@ -377,7 +390,7 @@ dl.card.details { gap: 12px; }
   font-weight: 700;
   font-size: 15px;
 }
-.mini-seg button.on { background: var(--hc); color: var(--hc-ink); }
+.mini-seg button.on { background: var(--hc); color: var(--hc-ink); box-shadow: inset 0 0 0 1.5px var(--hc-edge); }
 .mini-seg button:first-child.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
 .eng-toggle {
   width: 56px;
@@ -389,10 +402,11 @@ dl.card.details { gap: 12px; }
   background: var(--surface-2);
   color: var(--ink-3);
 }
-.eng-toggle.on { background: var(--hc); color: var(--hc-ink); }
+.eng-toggle.on { background: var(--hc); color: var(--hc-ink); box-shadow: inset 0 0 0 1.5px var(--hc-edge); }
+.eng-toggle { border-radius: 30%; }
 .eng-toggle .ic { width: 22px; height: 22px; }
 
-.suggest-chip.on { background: var(--ink); color: var(--bg); }
+.suggest-chip.on { background: var(--accent); color: var(--accent-ink); }
 .pause-active { display: grid; gap: 12px; }
 .pause-active .pause-note { padding: 0; background: none; }
 
@@ -425,3 +439,6 @@ dl.card.details { gap: 12px; }
   .disc { width: 36px; height: 36px; font-size: 14px; }
   .hcard-actions { grid-template-columns: 1fr; }
 }
+
+/* Форма звички в дрібних мітках (після всіх правил .dot, щоб перемогти за порядком) */
+.habit-eng .dot { border-radius: 3px; }

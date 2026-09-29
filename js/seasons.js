@@ -1,4 +1,5 @@
-// Сезони (календарні, Україна) і час доби (SPEC §6): визначення + декор.
+// Сезони (календарні, Україна) і час доби (SPEC §6): визначення, превʼю, частинки.
+import { isGarlandTime } from './scenes.js';
 
 export const SEASONS = {
   winter: { name: 'Зима', emoji: '❄️' },
@@ -30,22 +31,41 @@ export function timeOfDay(date) {
   return 'night';
 }
 
-// Попередній перегляд (Налаштування → Про застосунок або ?season=…&time=…); не зберігається.
-const preview = { season: null, tod: null };
-try {
-  const q = new URLSearchParams(location.search);
-  if (SEASONS[q.get('season')]) preview.season = q.get('season');
-  if (TIMES[q.get('time')]) preview.tod = q.get('time');
-} catch { /* ignore */ }
+// ——— Превʼю дизайну ———
+// Вмикається посиланням ?season=…&time=…&garland=1 або в «Про застосунок».
+// Живе лише в памʼяті: параметри одразу прибираються з адреси, тож перезавантаження
+// чи кнопка «Вийти» повертають реальний сезон і час.
+const preview = { season: null, tod: null, garland: false };
+const PREVIEW_KEYS = ['season', 'time', 'garland'];
+
+export function readPreviewFromUrl() {
+  try {
+    const url = new URL(location.href);
+    const q = url.searchParams;
+    if (!PREVIEW_KEYS.some((k) => q.has(k))) return false;
+    setPreview({ season: q.get('season'), tod: q.get('time'), garland: q.get('garland') === '1' });
+    PREVIEW_KEYS.forEach((k) => q.delete(k));
+    history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+  } catch { /* ignore */ }
+  return isPreview();
+}
 
 export const getPreview = () => ({ ...preview });
+export const isPreview = () => !!(preview.season || preview.tod || preview.garland);
 export function setPreview(p) {
   preview.season = SEASONS[p.season] ? p.season : null;
   preview.tod = TIMES[p.tod] ? p.tod : null;
+  preview.garland = p.garland === true;
 }
+export const clearPreview = () => setPreview({});
 
+/** Поточний вигляд: сезон і час доби (з урахуванням превʼю). */
 export function currentLook(now = new Date()) {
-  return { season: preview.season || seasonOf(now), tod: preview.tod || timeOfDay(now) };
+  return {
+    season: preview.season || seasonOf(now),
+    tod: preview.tod || timeOfDay(now),
+    garland: preview.garland || isGarlandTime(now),
+  };
 }
 
 // ——— Частинки ———
@@ -79,7 +99,7 @@ function fallers(rand, count, pick) {
       dot: !shape,
       vars: {
         '--x': `${(rand() * 100).toFixed(1)}%`,
-        '--y': `${(4 + rand() * 60).toFixed(1)}vh`,
+        '--y': `${(6 + rand() * 70).toFixed(1)}%`,
         '--s': `${size}px`,
         '--c': color,
         '--o': opacity,
@@ -125,7 +145,7 @@ export function particlesFor(season, tod) {
         cls: 'p firefly',
         vars: {
           '--x': `${(4 + rand() * 92).toFixed(1)}%`,
-          '--y': `${(6 + rand() * 36).toFixed(1)}vh`,
+          '--y': `${(8 + rand() * 60).toFixed(1)}%`,
           '--d': `${dur.toFixed(1)}s`,
           '--delay': `${(-rand() * dur).toFixed(1)}s`,
           '--bd': `${(1.8 + rand() * 2.4).toFixed(1)}s`,
@@ -141,7 +161,7 @@ export function particlesFor(season, tod) {
       cls: 'p glare',
       vars: {
         '--x': `${(52 + i * 9 + rand() * 6).toFixed(1)}%`,
-        '--y': `${(3 + i * 4.5 + rand() * 3).toFixed(1)}vh`,
+        '--y': `${(4 + i * 6 + rand() * 4).toFixed(1)}%`,
         '--s': `${between(26, 90)}px`,
         '--d': `${dur.toFixed(1)}s`,
         '--delay': `${(-rand() * dur).toFixed(1)}s`,
@@ -164,16 +184,4 @@ export function renderParticles(container, season, tod) {
     el.append(inner);
     return el;
   }));
-}
-
-/** Пагорби внизу шапки; передній шар кольору фону сторінки — «земля» переходить у контент. */
-export function landscape(season) {
-  const trees = season === 'autumn' || season === 'summer' || season === 'spring'
-    ? '<g class="ls-trees"><path d="M300 26c0-7 4-12 7-12s7 5 7 12c0 5-3 8-7 8s-7-3-7-8z"/><path d="M306 33h2v7h-2z"/><path d="M322 30c0-5 3-9 5-9s5 4 5 9c0 4-2 6-5 6s-5-2-5-6z"/><path d="M326 35h2v5h-2z"/><path d="M58 30c0-6 3-10 6-10s6 4 6 10c0 4-3 7-6 7s-6-3-6-7z"/><path d="M63 36h2v6h-2z"/></g>'
-    : '<g class="ls-trees"><path d="M306 16l8 14h-4l6 10h-20l6-10h-4z"/><path d="M60 22l6 10h-3l4 8h-14l4-8h-3z"/></g>';
-  return `<svg class="landscape" viewBox="0 0 400 64" preserveAspectRatio="none" aria-hidden="true">
-    <path class="ls-back" d="M0 40C48 22 96 20 150 30s104 16 150 4 70-14 100-8V64H0z"/>
-    ${trees}
-    <path class="ls-front" d="M0 50c70-14 140-12 210-4s128 8 190-4V64H0z"/>
-  </svg>`;
 }
