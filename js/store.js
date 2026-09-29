@@ -389,6 +389,9 @@ export function createStore(storage) {
       return null;
     },
 
+    /** Усі ключі сховища як є (разом із незбереженими змінами з черги) — для резервної копії. */
+    snapshot: () => readAll(),
+
     /** Лише для браузерного режиму: стерти все і почати з нуля. */
     async wipe() {
       const keys = await storage.getKeys();
