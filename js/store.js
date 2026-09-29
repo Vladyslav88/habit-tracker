@@ -109,7 +109,8 @@ export function createStore(storage) {
   function withDerived(date, habit, data) {
     const plan = planFor(settings, date);
     const planned = plan.habits.includes(habit);
-    const raw = { ...data, bonus: !planned };
+    // Бонус — лише виконана позапланова звичка; «пропуск бонусу» не має сенсу.
+    const raw = { ...data, bonus: data.s === 'done' && !planned };
     if (habit === 'train' && raw.day == null && planned) raw.day = plan.trainDay;
     return normalizeEntry(habit, raw);
   }

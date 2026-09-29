@@ -11,54 +11,127 @@ function lockScroll(on) {
 }
 
 /**
- * Відкриває шторку. render(body, api) наповнює вміст.
- * api: close(), setTitle(), setSubtitle(), onCleanup(fn), body.
+ * Відкриває шторку зі сторінкою `page`: { title, subtitle, className, pal, render(body, ctx), onLeave }.
+ * Усередині шторки можна переходити на інші сторінки (ctx.push / ctx.replace) — вміст
+ * замінюється, у шапці зʼявляється «назад», Telegram BackButton повертає на попередню сторінку.
+ *
+ * ctx сторінки: close() (для вкладеної — назад, для першої — закрити шторку), push(page), replace(page),
+ * onCleanup(fn) (коли сторінку покидають), setTitle(), setSubtitle(), closed, sheet.
  */
-export function openSheet({ title = '', subtitle = '', className = '', render, onClose }) {
-  const titleEl = h('h2', { class: 'sheet-title' }, title);
-  const subEl = h('p', { class: 'sheet-sub' }, subtitle);
+export function openSheet(root) {
+  const titleEl = h('h2', { class: 'sheet-title' });
+  const subEl = h('p', { class: 'sheet-sub' });
   const closeBtn = h('button', { class: 'icon-btn sheet-x', type: 'button', 'aria-label': 'Закрити' }, icon('x'));
+  const backBtn = h('button', { class: 'icon-btn sheet-back', type: 'button', 'aria-label': 'Назад', hidden: true }, icon('chevronL'));
   const head = h('header', { class: 'sheet-head' },
     h('div', { class: 'grabber', 'aria-hidden': 'true' }),
+    backBtn,
     h('div', { class: 'sheet-titles' }, titleEl, subEl),
     closeBtn);
   const body = h('div', { class: 'sheet-body' });
-  const panel = h('section', { class: `sheet ${className}`.trim(), role: 'dialog', 'aria-modal': 'true', 'aria-label': title }, head, body);
+  const panel = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true' }, head, body);
   const overlay = h('div', { class: 'overlay' });
   const wrap = h('div', { class: 'sheet-wrap' }, overlay, panel);
+  if (root.pal) wrap.dataset.pal = root.pal;
 
-  const cleanups = [];
+  const stack = []; // [{ page, ctx, cleanups, release, active }]
   let closed = false;
-  let release = () => {};
+
+  const setTitle = (t) => { titleEl.textContent = t || ''; panel.setAttribute('aria-label', t || ''); };
+  const setSubtitle = (t) => { subEl.textContent = t || ''; subEl.hidden = !t; };
+
+  function leave(entry) {
+    if (!entry?.active) return;
+    entry.active = false;
+    entry.cleanups.splice(0).forEach((fn) => fn());
+    entry.page.onLeave?.();
+  }
+
+  function show(entry, dir = '') {
+    entry.active = true;
+    const { page } = entry;
+    setTitle(page.title);
+    setSubtitle(page.subtitle);
+    panel.className = ['sheet', page.className].filter(Boolean).join(' ');
+    head.classList.toggle('has-back', stack.length > 1);
+    backBtn.hidden = stack.length < 2;
+    const content = h('div', { class: `sheet-page ${dir && `page-${dir}`}`.trim() });
+    body.replaceChildren(content);
+    body.scrollTop = 0;
+    page.render(content, entry.ctx);
+  }
+
+  function makeEntry(page) {
+    const entry = { page, cleanups: [], active: false, release: () => {} };
+    entry.ctx = {
+      sheet: api,
+      push: (p) => api.push(p),
+      replace: (p) => api.replace(p),
+      close() {
+        if (!entry.active) return;
+        if (stack.length > 1 && stack.at(-1) === entry) api.pop();
+        else api.close();
+      },
+      onCleanup: (fn) => entry.cleanups.push(fn),
+      setTitle,
+      setSubtitle,
+      get closed() { return !entry.active; },
+    };
+    return entry;
+  }
 
   const api = {
-    body,
-    panel,
+    push(page) {
+      if (closed) return;
+      leave(stack.at(-1));
+      const entry = makeEntry(page);
+      stack.push(entry);
+      entry.release = pushBack(() => api.pop(true));
+      show(entry, 'fwd');
+    },
+    /** Замінити поточну сторінку (без кроку «назад»). */
+    replace(page) {
+      if (closed) return;
+      const cur = stack.pop();
+      leave(cur);
+      const entry = makeEntry(page);
+      entry.release = cur.release;
+      stack.push(entry);
+      show(entry, 'fwd');
+    },
+    pop(fromBack = false) {
+      if (stack.length < 2) { api.close(fromBack); return; }
+      const cur = stack.pop();
+      if (!fromBack) cur.release();
+      leave(cur);
+      show(stack.at(-1), 'back');
+    },
     close(fromBack = false) {
       if (closed) return;
       closed = true;
-      if (!fromBack) release();
+      stack.slice().reverse().forEach((entry, i) => {
+        leave(entry);
+        if (!(fromBack && i === 0)) entry.release();
+      });
       wrap.classList.remove('open');
       setTimeout(() => wrap.remove(), 280);
       lockScroll(false);
-      cleanups.forEach((fn) => fn());
-      onClose?.();
+      root.onClose?.();
     },
-    setTitle(t) { titleEl.textContent = t; panel.setAttribute('aria-label', t); },
-    setSubtitle(t) { subEl.textContent = t || ''; subEl.hidden = !t; },
-    onCleanup(fn) { cleanups.push(fn); },
     get closed() { return closed; },
   };
-  api.setSubtitle(subtitle);
 
   overlay.addEventListener('click', () => api.close());
   closeBtn.addEventListener('click', () => api.close());
+  backBtn.addEventListener('click', () => api.pop());
   enableDragToClose(head, panel, () => api.close());
 
   layers().append(wrap);
   lockScroll(true);
-  release = pushBack(() => api.close(true));
-  render(body, api);
+  const first = makeEntry(root);
+  stack.push(first);
+  first.release = pushBack(() => api.close(true));
+  show(first);
   // Подвійний rAF — щоб анімація появи спрацювала після першого layout.
   requestAnimationFrame(() => requestAnimationFrame(() => wrap.classList.add('open')));
   return api;

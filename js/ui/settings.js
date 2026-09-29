@@ -1,14 +1,15 @@
 // Вкладка «Налаштування» (SPEC §5.5): розклад, паузи, про застосунок.
 import { addDays, diffDays, fmtDay, isValidKey, plural, todayKey, WEEKDAYS, WEEKDAYS_CAP } from '../dates.js';
-import { daysFor, DEFAULT_DAYS, DEFAULT_WORKOUTS, PAUSE_LABEL_MAX, pauseOn } from '../schedule.js';
-import { currentLook, getPreview, SEASONS, setPreview, TIMES } from '../seasons.js';
+import { HABITS } from '../entry.js';
+import { daysFor, DEFAULT_DAYS, DEFAULT_WORKOUTS, missesInRange, PAUSE_LABEL_MAX, pauseOn } from '../schedule.js';
+import { getPreview, SEASONS, seasonOf, setPreview, timeOfDay, TIMES } from '../seasons.js';
 import { KEYS_MAX } from '../storage.js';
 import { haptic } from '../tg.js';
 import { h, icon } from './dom.js';
 import { openScreen } from './screen.js';
 import { confirmDialog, openSheet, toast } from './sheet.js';
 
-export const APP_VERSION = '0.1.0 · Етап 1';
+export const APP_VERSION = '0.2.0 · Етап 1';
 
 function scheduleSummary(settings) {
   const days = daysFor(settings, todayKey());
@@ -167,19 +168,37 @@ function openPauseForm(store) {
       h('div', { class: 'sheet-actions' }, h('button', {
         type: 'button',
         class: 'btn btn-primary btn-wide',
-        onclick: () => {
+        onclick: async () => {
           if (!isValidKey(draft.from) || (!draft.open && !isValidKey(draft.to))) { toast('Вкажи дати', { type: 'error' }); return; }
           if (!draft.open && draft.to < draft.from) { toast('Кінець раніше за початок', { type: 'error' }); return; }
+          const until = draft.open ? null : draft.to;
           try {
             store.updateSettings((s) => {
-              s.pauses.push({ id: `p${Date.now().toString(36)}`, from: draft.from, to: draft.open ? null : draft.to, label: draft.label.trim() });
+              s.pauses.push({ id: `p${Date.now().toString(36)}`, from: draft.from, to: until, label: draft.label.trim() });
               return s;
             });
-            haptic.light();
-            toast('Паузу додано');
-            sheet.close();
           } catch (err) {
             toast(err.message, { type: 'error' });
+            return;
+          }
+          haptic.light();
+          sheet.close();
+          // Пауза має пріоритет над пропусками. Якщо в періоді вже є пропуски — питаємо, що з ними робити.
+          const misses = missesInRange(store.entries, draft.from, until);
+          if (!misses.length) { toast('Паузу додано'); return; }
+          const n = misses.length;
+          const list = misses.slice(0, 4).map((m) => `${fmtDay(m.date)} — ${HABITS[m.habit].name.toLowerCase()}`).join(', ') + (n > 4 ? '…' : '');
+          const convert = await confirmDialog({
+            title: 'Перетворити пропуски на паузу?',
+            text: `У цьому періоді ${n} ${plural(n, ['пропуск', 'пропуски', 'пропусків'])}: ${list}. Якщо так — записи пропусків видаляться і ці дні стануть звичайними днями паузи. Якщо ні — записи залишаться, але поки діє пауза, не рахуються.`,
+            ok: 'Перетворити',
+            cancel: 'Залишити',
+          });
+          if (convert) {
+            misses.forEach((m) => store.deleteEntry(m.date, m.habit));
+            toast(`Паузу додано, ${n} ${plural(n, ['пропуск перетворено', 'пропуски перетворено', 'пропусків перетворено'])}`);
+          } else {
+            toast('Паузу додано, записи пропусків залишено');
           }
         },
       }, 'Додати паузу')));
@@ -248,7 +267,7 @@ function openPauses(store) {
 
 // ——— Про застосунок ———
 
-function openAbout({ store, applyLook }) {
+function openAbout({ store, relook }) {
   openScreen({
     title: 'Про застосунок',
     render(body) {
@@ -256,18 +275,22 @@ function openAbout({ store, applyLook }) {
       const cloud = store.mode === 'cloud';
       const info = (k, v) => h('div', { class: 'drow' }, h('dt', null, k), h('dd', null, v));
 
-      const preview = getPreview();
-      const look = currentLook();
+      const now = new Date();
       const seasonSeg = h('div', { class: 'choices choices-wrap' });
       const todSeg = h('div', { class: 'choices choices-wrap' });
+      const garlandBtn = h('button', { type: 'button', class: 'choice choice-sm' }, '🎄 Гірлянда');
       const paintPreview = () => {
+        const preview = getPreview();
+        const update = (patch) => { setPreview({ ...getPreview(), ...patch }); relook(); haptic.select(); paintPreview(); };
         const mk = (dict, key, container) => container.replaceChildren(...[['', 'Авто'], ...Object.entries(dict).map(([k, v]) => [k, v.emoji ? `${v.emoji} ${v.name}` : v.name])].map(([k, text]) => h('button', {
           type: 'button',
           class: `choice choice-sm ${(preview[key] || '') === k ? 'on' : ''}`,
-          onclick: () => { preview[key] = k || null; setPreview(preview); applyLook(); haptic.select(); paintPreview(); },
+          onclick: () => update({ [key]: k || null }),
         }, text)));
         mk(SEASONS, 'season', seasonSeg);
         mk(TIMES, 'tod', todSeg);
+        garlandBtn.classList.toggle('on', preview.garland);
+        garlandBtn.onclick = () => update({ garland: !preview.garland });
       };
       paintPreview();
 
@@ -284,9 +307,10 @@ function openAbout({ store, applyLook }) {
           stats.broken ? info('Пошкоджених записів', String(stats.broken)) : null),
         h('h2', { class: 'section-title' }, 'Превʼю дизайну'),
         h('div', { class: 'card stack-s' },
-          h('p', { class: 'small muted' }, `Зараз: ${SEASONS[look.season].name.toLowerCase()}, ${TIMES[look.tod].name.toLowerCase()}. Перемикач лише для перегляду й скидається при перезапуску.`),
+          h('p', { class: 'small muted' }, `Насправді зараз: ${SEASONS[seasonOf(now)].name.toLowerCase()}, ${TIMES[timeOfDay(now)].name.toLowerCase()}. Превʼю діє на «Сьогодні» й інші вкладки, крім календаря (він завжди в палітрі місяця, що переглядається). Нічого не зберігається: вийти можна кнопкою «Вийти» вгорі або перезапуском.`),
           h('span', { class: 'field-label' }, 'Сезон'), seasonSeg,
-          h('span', { class: 'field-label' }, 'Час доби'), todSeg),
+          h('span', { class: 'field-label' }, 'Час доби'), todSeg,
+          h('span', { class: 'field-label' }, 'Гірлянда (зима, ніч; насправді 15.12–15.01)'), h('div', { class: 'choices choices-wrap' }, garlandBtn)),
       );
 
       if (!cloud) {

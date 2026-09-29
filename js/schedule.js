@@ -150,17 +150,21 @@ export function unmarked(settings, entries, today, lookback = 14) {
 
 /**
  * Стан дня для календаря.
- * items: [{habit, state: done|miss|planned|unmarked, bonus, back}]
+ * items: [{habit, state: done|miss|planned|unmarked, bonus, back, entry}]
+ * hidden: пропуски в день паузи — пауза має пріоритет, тож у календарі й статистиці їх не видно.
  */
 export function dayInfo(settings, entries, date, today) {
   const plan = planFor(settings, date);
   const tracked = date >= settings.startDate;
   const items = [];
+  const hidden = [];
   const order = [...plan.habits, ...HABIT_IDS.filter((h) => !plan.habits.includes(h))];
   for (const habit of order) {
     const e = entries.get(entryId(date, habit));
     const isPlan = plan.habits.includes(habit);
-    if (e) {
+    if (e && plan.pause && e.s === 'miss') {
+      hidden.push({ habit, entry: e });
+    } else if (e) {
       items.push({
         habit,
         state: e.s,
@@ -172,7 +176,17 @@ export function dayInfo(settings, entries, date, today) {
       items.push({ habit, state: date >= today ? 'planned' : 'unmarked', bonus: false, back: false, entry: null });
     }
   }
-  return { date, items, plan, isToday: date === today, isFuture: date > today };
+  return { date, items, hidden, plan, isToday: date === today, isFuture: date > today };
+}
+
+/** Пропуски, що потрапляють у період [from, to] (to = null — без кінця). */
+export function missesInRange(entries, from, to) {
+  const out = [];
+  for (const [id, e] of entries) {
+    const date = id.slice(0, 10);
+    if (e.s === 'miss' && date >= from && (to === null || date <= to)) out.push({ date, habit: id.slice(11) });
+  }
+  return out.sort((a, b) => (a.date < b.date ? -1 : 1));
 }
 
 /** Підсумок місяця: X виконано із Y запланованих (+ бонуси) по кожній звичці. */

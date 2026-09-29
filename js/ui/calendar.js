@@ -2,6 +2,7 @@
 import { daysInMonth, fmtLong, keyOf, MONTHS, plural, todayKey, WEEKDAYS_CAP } from '../dates.js';
 import { HABITS, HABIT_IDS } from '../entry.js';
 import { dayInfo, monthSummary } from '../schedule.js';
+import { seasonOf } from '../seasons.js';
 import { haptic } from '../tg.js';
 import { h, icon } from './dom.js';
 import { openDaySheet } from './day-sheet.js';
@@ -17,40 +18,50 @@ function shift(n) {
   slide = n > 0 ? 'from-right' : 'from-left';
 }
 
+// Форма розрізняє звички й без кольору: тренування — коло, англійська — заокруглений квадрат.
+const mark = (it) => h('span', { class: `mk st-${it.state} habit-${it.habit}` }, it.bonus ? '+' : it.state === 'miss' ? '×' : '');
+
 function dayCell(store, date, today) {
   const info = dayInfo(store.settings, store.entries, date, today);
-  const [main, second] = info.items;
-  const paused = info.plan.pause && !info.items.some((it) => it.entry);
+  const items = info.items;
+  const pair = items.length > 1;
+  const main = items[0];
+  const paused = !!info.plan.pause && !items.some((it) => it.entry);
   const cls = [
     'day',
-    main ? `st-${main.state} habit-${main.habit}` : 'st-rest',
+    pair ? 'is-pair' : main ? `st-${main.state} habit-${main.habit}` : 'st-rest',
     info.isToday && 'is-today',
     paused && 'is-pause',
     info.isFuture && 'is-future',
   ].filter(Boolean).join(' ');
-  const label = [fmtLong(date), paused ? `пауза${info.plan.pause.label ? ` (${info.plan.pause.label})` : ''}` : '',
-    ...info.items.map((it) => `${HABITS[it.habit].name} — ${STATE_TEXT[it.state]}${it.bonus ? ', бонус' : ''}${it.back ? ', спина' : ''}`)]
+  const label = [fmtLong(date), info.plan.pause ? `пауза${info.plan.pause.label ? ` (${info.plan.pause.label})` : ''}` : '',
+    ...items.map((it) => `${HABITS[it.habit].name} — ${STATE_TEXT[it.state]}${it.bonus ? ', бонус' : ''}${it.back ? ', спина' : ''}`)]
     .filter(Boolean).join('; ');
+  const num = h('span', { class: 'num' }, String(Number(date.slice(8))));
 
   return h('button', { type: 'button', class: cls, 'aria-label': label, onclick: () => { haptic.select(); openDaySheet(store, date); } },
-    h('span', { class: 'disc' }, h('span', { class: 'num' }, String(Number(date.slice(8))))),
-    main?.bonus && h('span', { class: 'bonus-mark', 'aria-hidden': 'true' }, '+'),
-    second && h('span', { class: `sat st-${second.state} habit-${second.habit}`, 'aria-hidden': 'true' }, second.bonus ? '+' : ''),
-    info.items.some((it) => it.back) && h('span', { class: 'back-dot', 'aria-hidden': 'true' }));
+    pair
+      // Два записи в один день: номер і дві мітки-форми під ним.
+      ? h('span', { class: 'disc' }, num, h('span', { class: 'marks' }, HABIT_IDS.map((hb) => items.find((it) => it.habit === hb)).filter(Boolean).map(mark)))
+      : h('span', { class: 'disc' }, num),
+    !pair && main?.bonus && h('span', { class: 'bonus-mark', 'aria-hidden': 'true' }, '+'),
+    items.some((it) => it.back) && h('span', { class: 'back-dot', 'aria-hidden': 'true' }));
 }
 
 function legend() {
   const item = (sample, text) => h('span', { class: 'lg' }, sample, text);
-  const disc = (cls) => h('span', { class: `lg-disc ${cls}` });
+  const disc = (cls, txt = '') => h('span', { class: `lg-disc ${cls}` }, txt);
+  const pair = h('span', { class: 'lg-pair' }, h('span', { class: 'mk st-done habit-train' }), h('span', { class: 'mk st-done habit-eng' }));
   return h('section', { class: 'legend', 'aria-label': 'Легенда' },
-    item(disc('st-done habit-train'), 'тренування'),
-    item(disc('st-done habit-eng'), 'англійська'),
-    item(disc('st-miss'), 'пропуск'),
+    item(disc('st-done habit-train'), 'тренування (коло)'),
+    item(disc('st-done habit-eng'), 'англійська (квадрат)'),
+    item(disc('st-miss', '×'), 'пропуск'),
     item(disc('st-planned habit-train'), 'заплановано'),
     item(disc('st-unmarked habit-train'), 'не відмічено'),
     item(disc('is-pause'), 'пауза'),
-    item(h('span', { class: 'lg-disc habit-train lg-bonus' }, '+'), 'бонус'),
+    item(disc('lg-bonus habit-train', '+'), 'бонус'),
     item(h('span', { class: 'lg-dot' }), 'спина'),
+    item(pair, 'дві звички в один день'),
     item(disc('is-today'), 'сьогодні'));
 }
 
@@ -74,13 +85,15 @@ function summary(store) {
     }));
 }
 
-export function renderCalendar(container, { store }) {
+export function renderCalendar(container, ctx) {
+  const { store, syncLook } = ctx;
   const today = todayKey();
   const now = new Date();
   if (!view) view = { y: now.getFullYear(), m: now.getMonth() };
   const isCurrent = view.y === now.getFullYear() && view.m === now.getMonth();
 
-  const rerender = () => renderCalendar(container, { store });
+  // Календар фарбується палітрою сезону місяця, що переглядається.
+  const rerender = () => { syncLook?.(); renderCalendar(container, ctx); };
   const go = (n) => { shift(n); haptic.select(); rerender(); };
 
   const grid = h('div', { class: `cal-grid ${slide}`.trim(), role: 'grid' });
@@ -125,6 +138,12 @@ let arrow = null;
 /** Стрілки ←/→ на клавіатурі (браузер, Telegram Desktop). */
 export function calendarArrow(dir) {
   arrow?.(dir);
+}
+
+/** Сезон місяця, що переглядається (визначає палітру календаря). */
+export function calendarSeason() {
+  const now = new Date();
+  return seasonOf(view ? new Date(view.y, view.m, 15) : now);
 }
 
 /** Повернутися до поточного місяця (повторний тап по вкладці). */

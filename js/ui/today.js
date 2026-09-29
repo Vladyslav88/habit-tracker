@@ -1,7 +1,8 @@
 // Вкладка «Сьогодні» (SPEC §5.1).
 import { fmtDay, fmtLong, fmtShort, fmtTime, relDays, todayKey } from '../dates.js';
 import { HABITS, HABIT_IDS } from '../entry.js';
-import { landscape, SEASONS, TIMES } from '../seasons.js';
+import { sceneMarkup } from '../scenes.js';
+import { SEASONS, TIMES } from '../seasons.js';
 import { entryId, planFor, unmarked, upcoming } from '../schedule.js';
 import { firstName, haptic } from '../tg.js';
 import { h, icon } from './dom.js';
@@ -66,10 +67,8 @@ function openBonusPicker(store, date, habits) {
       body.append(h('div', { class: 'stack' }, habits.map((habit) => h('button', {
         type: 'button',
         class: `btn btn-soft btn-wide btn-bonus habit-${habit}`,
-        onclick: () => {
-          sheet.close();
-          markAndAsk(store, date, habit, 'done');
-        },
+        // Форма запису замінює вміст цієї ж шторки.
+        onclick: () => markAndAsk(store, date, habit, 'done', {}, sheet, { replace: true }),
       }, icon(HABITS[habit].icon), `+ ${HABITS[habit].name}`))));
     },
   });
@@ -114,22 +113,36 @@ function upcomingList(store, today) {
     h('span', { class: 'list-when small' }, h('b', null, fmtShort(d.date).split(',')[0]), relDays(d.date, today))))));
 }
 
-export function renderHero(look, now = new Date()) {
+function renderHero(look, key, now = new Date()) {
   const s = SEASONS[look.season];
   const greet = TIMES[look.tod].greeting + (firstName ? `, ${firstName}` : '');
-  const hero = h('section', { class: 'hero' },
+  const hero = h('section', { class: 'hero', 'data-key': key },
     h('div', { class: 'hero-top' }, h('span', { class: 'season-chip' }, `${s.emoji} ${s.name}`)),
     h('p', { class: 'greeting' }, greet),
     h('div', { class: 'clock', 'data-clock': '' }, fmtTime(now)),
     h('p', { class: 'hero-date' }, fmtLong(todayKey())));
-  hero.insertAdjacentHTML('beforeend', landscape(look.season));
+  hero.insertAdjacentHTML('beforeend', sceneMarkup(look.season));
   return hero;
+}
+
+/** Висота шапки — частинки падають лише в її межах. */
+function syncFxHeight(hero) {
+  requestAnimationFrame(() => {
+    const r = hero.getBoundingClientRect();
+    if (r.height) document.documentElement.style.setProperty('--fx-h', `${Math.round(r.bottom + window.scrollY - 40)}px`);
+  });
 }
 
 export function renderToday(view, { store, look }) {
   const today = todayKey();
   const plan = planFor(store.settings, today);
-  const todays = [...plan.habits, ...HABIT_IDS.filter((hb) => !plan.habits.includes(hb) && store.entries.has(entryId(today, hb)))];
+  // Пауза має пріоритет: пропуск у день паузи не показуємо.
+  const extra = HABIT_IDS.filter((hb) => {
+    if (plan.habits.includes(hb)) return false;
+    const e = store.entries.get(entryId(today, hb));
+    return e && !(plan.pause && e.s === 'miss');
+  });
+  const todays = [...plan.habits, ...extra];
   const bonusable = HABIT_IDS.filter((hb) => !todays.includes(hb));
 
   const body = h('div', { class: 'today-body' });
@@ -157,5 +170,15 @@ export function renderToday(view, { store, look }) {
   const next = upcomingList(store, today);
   if (next && plan.habits.length) body.append(h('h2', { class: 'section-title' }, 'Далі за розкладом'), next);
 
-  view.replaceChildren(renderHero(look), body);
+  // Шапку не перебудовуємо без потреби — інакше анімації сцени починалися б спочатку після кожного тапу.
+  const key = [look.season, look.tod, today, firstName].join('|');
+  const oldHero = view.querySelector(':scope > .hero');
+  const oldBody = view.querySelector(':scope > .today-body');
+  if (oldHero && oldBody && oldHero.dataset.key === key) {
+    oldBody.replaceWith(body);
+  } else {
+    const hero = renderHero(look, key);
+    view.replaceChildren(hero, body);
+    syncFxHeight(hero);
+  }
 }
