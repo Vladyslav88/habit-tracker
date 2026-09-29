@@ -56,10 +56,15 @@ export const backButton = {
   onClick(fn) { if (atLeast('6.1')) tg.BackButton.onClick(fn); },
 };
 
-/** Повернення в застосунок (Bot API 8.0+) або звичайна зміна видимості вкладки. */
+/**
+ * Повернення в застосунок (Bot API 8.0+), зміна видимості вкладки або фокус вікна
+ * (Telegram Desktop: вікно лишається «видимим», коли просто перемикаєшся на нього).
+ * Може спрацювати кілька разів поспіль — тротлінг на боці fn (store.refresh).
+ */
 export function onResume(fn) {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') fn();
   });
+  window.addEventListener('focus', fn);
   if (atLeast('8.0')) tg.onEvent('activated', fn);
 }

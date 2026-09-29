@@ -250,6 +250,8 @@ export function monthReport(settings, entries, y, m, today) {
     bonus: HABIT_IDS.reduce((n, hb) => n + habits[hb].bonus, 0),
     marks: a.marks,
     misses: a.misses,
+    // Розбивка пропусків по звичках — ті самі межі [from, to], що й misses.
+    missBy: Object.fromEntries(HABIT_IDS.map((hb) => [hb, a.habits[hb].miss])),
     unmarked: HABIT_IDS.reduce((n, hb) => n + habits[hb].unmarked, 0),
     pauseDays,
     noReason: a.noReason,

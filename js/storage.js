@@ -111,10 +111,15 @@ export function validate(key, value) {
  * Сховище з чергою записів. Записи в один ключ зливаються (перемагає останній),
  * порядок різних ключів зберігається, помилка блокує чергу до успішного повтору —
  * тож швидкі повторні тапи нічого не гублять і не перемішують.
+ * update(key, fn) — запис зі злиттям: прямо перед записом читає поточне значення зі сховища
+ * і пише fn(поточне). Так значення, яке пишуть кілька пристроїв (досягнення), не затирається.
  */
 export function createStorage(tg, backend = pickBackend(tg)) {
-  const pending = new Map(); // key → { op: 'set' | 'remove', value }
+  // key → { op: 'set' | 'remove' | 'update', value?, fn?, waiters: [resolve] }
+  const pending = new Map();
   const listeners = new Set();
+  let inflight = null; // операція, що саме зараз пишеться
+  let writes = 0; // лічильник поставлених у чергу операцій — щоб refresh помітив запис під час читання
   let running = false;
   let retryTimer = null;
   let failures = 0;
@@ -145,13 +150,23 @@ export function createStorage(tg, backend = pickBackend(tg)) {
     setStatus('saving');
     while (pending.size) {
       const [key, item] = pending.entries().next().value;
+      inflight = item;
       try {
-        if (item.op === 'set') await backend.setItem(key, item.value);
+        let before = null;
+        if (item.op === 'update') {
+          before = (await backend.getItems([key]))[key] ?? '';
+          const value = item.fn(before);
+          validate(key, value);
+          await backend.setItem(key, value);
+        } else if (item.op === 'set') await backend.setItem(key, item.value);
         else await backend.removeItems([key]);
+        inflight = null;
         if (pending.get(key) === item) pending.delete(key);
+        item.waiters.forEach((w) => w({ before }));
         failures = 0;
         lastError = null;
       } catch (e) {
+        inflight = null;
         failures++;
         lastError = e;
         running = false;
@@ -168,11 +183,24 @@ export function createStorage(tg, backend = pickBackend(tg)) {
     setStatus('saved');
   }
 
+  /** carry — забрати очікувачів непочатої операції; інакше вони дізнаються, що їхнє злиття скасовано. */
+  function enqueue(key, item, carry = false) {
+    const prev = pending.get(key);
+    if (prev && prev !== inflight && prev.waiters.length) {
+      if (carry) item.waiters.unshift(...prev.waiters);
+      else prev.waiters.forEach((w) => w({ before: null }));
+    }
+    writes++;
+    pending.set(key, item);
+    kick();
+  }
+
   return {
     mode: backend.mode,
     get status() { return status; },
     get lastError() { return lastError; },
     get idle() { return !pending.size && !running; },
+    get writes() { return writes; },
     onStatus(fn) { listeners.add(fn); return () => listeners.delete(fn); },
 
     getKeys: () => backend.getKeys(),
@@ -183,13 +211,30 @@ export function createStorage(tg, backend = pickBackend(tg)) {
 
     set(key, value) {
       validate(key, value);
-      pending.set(key, { op: 'set', value });
-      kick();
+      enqueue(key, { op: 'set', value, waiters: [] });
     },
     remove(key) {
       validate(key);
-      pending.set(key, { op: 'remove' });
-      kick();
+      enqueue(key, { op: 'remove', waiters: [] });
+    },
+    /**
+     * Запис зі злиттям: fn(поточне значення в сховищі або '') → нове значення. Має бути чистою
+     * й ідемпотентною (при помилці викликається ще раз). Проміс — { before } після успішного запису:
+     * що лежало в сховищі перед ним (null — злиття не знадобилось: ключ перезаписали через set/remove).
+     */
+    update(key, fn) {
+      validate(key);
+      return new Promise((resolve) => {
+        const prev = pending.get(key);
+        const queued = prev && prev !== inflight ? prev : null;
+        // Ще не почате злиття замінюємо новим (fn бере найсвіжіший стан); поверх set/remove у черзі —
+        // зливаємо з тим, що мало записатися. Очікувачі попередньої операції переходять до нової.
+        if (queued && queued.op !== 'update') {
+          enqueue(key, { op: 'set', value: fn(queued.op === 'set' ? queued.value : ''), waiters: [resolve] }, true);
+        } else {
+          enqueue(key, { op: 'update', fn, waiters: [resolve] }, true);
+        }
+      });
     },
     retry() {
       if (running) return;

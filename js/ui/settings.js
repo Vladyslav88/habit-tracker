@@ -11,7 +11,7 @@ import { h, icon } from './dom.js';
 import { openScreen } from './screen.js';
 import { confirmDialog, openSheet, toast } from './sheet.js';
 
-export const APP_VERSION = '0.4.0 · Етап 2б';
+export const APP_VERSION = '0.4.2 · Етап 2б';
 
 function scheduleSummary(settings) {
   const days = daysFor(settings, todayKey());
