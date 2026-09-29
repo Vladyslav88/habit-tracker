@@ -12,7 +12,8 @@ import { $, h, icon } from './ui/dom.js';
 import { depth, initNav } from './ui/nav.js';
 import { renderSettings } from './ui/settings.js';
 import { toast } from './ui/sheet.js';
-import { renderAnalytics, renderEnglish } from './ui/stubs.js';
+import { renderAnalytics } from './ui/analytics.js';
+import { renderEnglish } from './ui/stubs.js';
 import { renderToday } from './ui/today.js';
 
 const root = document.documentElement;
