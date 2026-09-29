@@ -2,7 +2,9 @@
 // Правила ті самі, що в календарі (schedule.js): заплановане — з розкладу, що діяв на дату;
 // пауза має пріоритет (пропуск у день паузи не рахується, виконане — бонус); до дати старту нічого не рахується.
 import { addDays, daysInMonth, diffDays, keyOf, parseKey } from './dates.js';
-import { DUR, HABIT_IDS, REASONS } from './entry.js';
+import { REASONS } from './entry.js';
+import { HABIT_IDS, hasModule } from './habits.js';
+import { DUR, PROGRAM_DAYS } from './modules.js';
 import { entryId, pauseOn, planFor } from './schedule.js';
 
 export const PERIODS = [
@@ -104,11 +106,11 @@ export function countedRecords(settings, entries, from, to, today) {
   return records;
 }
 
-/** Кількість різних тем англійської (без урахування регістру) серед виконаних занять, включно з бонусами. */
+/** Кількість різних тем (модуль «Тема», без урахування регістру) серед виконаних занять, включно з бонусами. */
 export function distinctTopics(records) {
   const seen = new Set();
   for (const r of records) {
-    if (r.habit === 'eng' && r.kind !== 'miss' && r.entry.topic) seen.add(r.entry.topic.trim().toLowerCase());
+    if (hasModule(r.habit, 'topic') && r.kind !== 'miss' && r.entry.topic) seen.add(r.entry.topic.trim().toLowerCase());
   }
   return seen.size;
 }
@@ -117,18 +119,19 @@ export function distinctTopics(records) {
 export function analyze(settings, entries, from, to, today) {
   const habits = habitStats(settings, entries, from, to, today);
   const records = countedRecords(settings, entries, from, to, today);
-  const trainsDone = records.filter((r) => r.habit === 'train' && r.kind !== 'miss');
+  const doneWith = (mod) => records.filter((r) => hasModule(r.habit, mod) && r.kind !== 'miss');
   const misses = records.filter((r) => r.kind === 'miss');
 
-  // Тривалість тренувань
-  const dur = { total: trainsDone.length, known: 0, unknown: 0, by: Object.fromEntries(DUR.map((x) => [x.v, 0])) };
-  for (const r of trainsDone) {
+  // Тривалість (модуль «Тривалість»; total — усі виконані такої звички, навіть без відповіді)
+  const durDone = doneWith('dur');
+  const dur = { total: durDone.length, known: 0, unknown: 0, by: Object.fromEntries(DUR.map((x) => [x.v, 0])) };
+  for (const r of durDone) {
     if (r.entry.dur) { dur.by[r.entry.dur]++; dur.known++; } else dur.unknown++;
   }
 
-  // Спина після Дня 1/2/3 (лише тренування, де відповідь про спину є)
-  const back = { known: 0, hurt: 0, noDay: 0, by: { 1: { n: 0, back: 0 }, 2: { n: 0, back: 0 }, 3: { n: 0, back: 0 } } };
-  for (const r of trainsDone) {
+  // Спина після Дня 1/2/3 (модуль «Спина»; лише записи, де відповідь про спину є; День — модуль «Програма»)
+  const back = { known: 0, hurt: 0, noDay: 0, by: Object.fromEntries(PROGRAM_DAYS.map((d) => [d, { n: 0, back: 0 }])) };
+  for (const r of doneWith('back')) {
     if (r.entry.back === null) continue;
     back.known++;
     if (r.entry.back) back.hurt++;
@@ -138,15 +141,15 @@ export function analyze(settings, entries, from, to, today) {
     if (r.entry.back) cell.back++;
   }
 
-  // Причини пропусків
-  const reasonCount = Object.fromEntries(REASONS.map((x) => [x.v, { train: 0, eng: 0 }]));
+  // Причини пропусків: по кожній звичці ({ v, <id звички>: n, …, total })
+  const reasonCount = Object.fromEntries(REASONS.map((x) => [x.v, Object.fromEntries(HABIT_IDS.map((hb) => [hb, 0]))]));
   let noReason = 0;
   for (const r of misses) {
     if (!r.entry.reasons.length) noReason++;
     for (const v of r.entry.reasons) reasonCount[v][r.habit]++;
   }
   const reasons = REASONS
-    .map((x) => ({ v: x.v, train: reasonCount[x.v].train, eng: reasonCount[x.v].eng, total: reasonCount[x.v].train + reasonCount[x.v].eng }))
+    .map((x) => ({ v: x.v, ...reasonCount[x.v], total: HABIT_IDS.reduce((n, hb) => n + reasonCount[x.v][hb], 0) }))
     .filter((x) => x.total)
     .sort((a, b) => b.total - a.total);
   const comments = misses.filter((r) => r.entry.comment).sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 3);
@@ -259,6 +262,7 @@ export function monthReport(settings, entries, y, m, today) {
     topReasons: topCount ? a.reasons.filter((r) => r.total === topCount) : [],
     energy: a.energy,
     back: { known: a.back.known, hurt: a.back.hurt },
+    // Виконані тренування (звички з модулем «Тривалість») — для підпису плитки «Спина».
     trainsDone: a.dur.total,
     topics: a.topics,
   };

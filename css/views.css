@@ -770,3 +770,6 @@ dl.card.details { gap: 12px; }
   .mc-tile b { font-size: 17px; }
   .mc-month { font-size: 26px; }
 }
+
+/* Резервна копія: текст JSON для ручного копіювання */
+.backup-text { font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; min-height: 160px; word-break: break-all; }

@@ -1,7 +1,9 @@
 // Вкладка «Аналітика» (SPEC §8). Графіки — простий SVG/CSS, кольори лише з токенів палітри.
 import { analyze, checkpointTimeline, MIN, PERIODS, periodRange, reportMonths, streaks } from '../analytics.js';
 import { fmtDay, fmtShort, MONTHS, plural, todayKey } from '../dates.js';
-import { DUR, ENERGY, HABITS, HABIT_IDS, reasonLabel } from '../entry.js';
+import { ENERGY, reasonLabel } from '../entry.js';
+import { HABITS, HABIT_IDS, habitsWith } from '../habits.js';
+import { DUR, PROGRAM_DAYS } from '../modules.js';
 import { haptic } from '../tg.js';
 import { checkpointCard, cpRange, cpWhen, openCheckpoints } from './checkpoints.js';
 import { h, icon } from './dom.js';
@@ -41,9 +43,9 @@ function card(title, sub, ...body) {
 
 // ——— Виконання ———
 
-/** Кільце виконання: тренування — коло, англійська — заокруглений квадрат (як у календарі). */
+/** Кільце виконання у формі звички: коло або заокруглений квадрат (як у календарі). */
 export function ring(habit, pct) {
-  const shape = (cls) => (habit === 'train'
+  const shape = (cls) => (HABITS[habit].shape === 'circle'
     ? svg('circle', { class: cls, cx: 28, cy: 28, r: 23, pathLength: 100 })
     : svg('rect', { class: cls, x: 5, y: 5, width: 46, height: 46, rx: 14, pathLength: 100 }));
   const val = shape('ring-val');
@@ -79,7 +81,8 @@ function habitRow(store, habit, r, today) {
 
 function durationCard(a) {
   const { dur } = a;
-  const sub = dur.total ? `${dur.total} ${plural(dur.total, HABITS.train.forms)} за період` : '';
+  const [habit] = habitsWith('dur');
+  const sub = dur.total ? `${dur.total} ${plural(dur.total, HABITS[habit].forms)} за період` : '';
   if (dur.known < MIN.dur) {
     return card('Тривалість тренувань', sub,
       empty(dur.total
@@ -88,7 +91,7 @@ function durationCard(a) {
   }
   const max = Math.max(...Object.values(dur.by));
   return card('Тривалість тренувань', sub,
-    h('div', { class: 'hbars habit-train' }, DUR.map((d) => {
+    h('div', { class: `hbars habit-${habit}` }, DUR.map((d) => {
       const n = dur.by[d.v];
       return h('div', { class: 'hbar', 'aria-label': `${d.label}: ${n}` },
         h('span', { class: 'hbar-label' }, d.label),
@@ -106,7 +109,7 @@ function backCard(a) {
     return card('Спина після Дня 1 / 2 / 3', null,
       empty(`Відповідь про спину є в ${back.known} ${plural(back.known, ['тренуванні', 'тренуваннях', 'тренуваннях'])}. Порівняння Днів зʼявиться після ${MIN.back}.`, back.known, MIN.back));
   }
-  const rows = [1, 2, 3].map((d) => ({ d, ...back.by[d], rate: back.by[d].n ? back.by[d].back / back.by[d].n : null }));
+  const rows = PROGRAM_DAYS.map((d) => ({ d, ...back.by[d], rate: back.by[d].n ? back.by[d].back / back.by[d].n : null }));
   const worst = rows.filter((r) => r.back).sort((x, y) => y.rate - x.rate || y.back - x.back)[0];
   const tie = worst && rows.filter((r) => r.back && r.rate === worst.rate).length > 1;
   let verdict;
@@ -136,8 +139,7 @@ function missesCard(a) {
   const bars = a.reasons.length ? h('div', { class: 'hbars' }, a.reasons.map((r) => h('div', { class: 'hbar', 'aria-label': `${reasonLabel(r.v)}: ${r.total}` },
     h('span', { class: 'hbar-label' }, reasonLabel(r.v)),
     h('span', { class: 'hbar-track hbar-stack' },
-      r.train ? h('i', { class: 'habit-train', style: { width: `${(r.train / max) * 100}%` } }) : null,
-      r.eng ? h('i', { class: 'habit-eng', style: { width: `${(r.eng / max) * 100}%` } }) : null),
+      HABIT_IDS.map((hb) => (r[hb] ? h('i', { class: `habit-${hb}`, style: { width: `${(r[hb] / max) * 100}%` } }) : null))),
     h('b', { class: 'hbar-val' }, String(r.total))))) : null;
   const comments = a.comments.length ? h('div', { class: 'an-comments' },
     h('span', { class: 'field-label' }, 'Останні коментарі'),

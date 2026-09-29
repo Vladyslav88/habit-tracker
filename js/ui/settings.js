@@ -1,10 +1,12 @@
 // Вкладка «Налаштування» (SPEC §5.5): розклад, паузи, контрольні точки, про застосунок.
 import { addDays, diffDays, fmtDay, isValidKey, plural, todayKey, WEEKDAYS, WEEKDAYS_CAP } from '../dates.js';
-import { HABITS } from '../entry.js';
+import { HABIT_IDS, HABITS, scheduledOn } from '../habits.js';
+import { PROGRAM_DAYS } from '../modules.js';
 import { daysFor, DEFAULT_DAYS, DEFAULT_WORKOUTS, missesInRange, PAUSE_LABEL_MAX, pauseOn } from '../schedule.js';
 import { getPreview, SEASONS, seasonOf, setPreview, timeOfDay, TIMES } from '../seasons.js';
 import { KEYS_MAX } from '../storage.js';
 import { haptic } from '../tg.js';
+import { backupText, buildBackup } from '../backup.js';
 import { achievementsSummary, openAchievements } from './achievements.js';
 import { cpRange, cpWhen, nextCheckpoint, openCheckpoints } from './checkpoints.js';
 import { h, icon } from './dom.js';
@@ -15,9 +17,10 @@ export const APP_VERSION = '0.4.2 · Етап 2б';
 
 function scheduleSummary(settings) {
   const days = daysFor(settings, todayKey());
-  const t = days.map((d, i) => (d.train ? WEEKDAYS_CAP[i] : null)).filter(Boolean);
-  const e = days.map((d, i) => (d.eng ? WEEKDAYS_CAP[i] : null)).filter(Boolean);
-  return [t.length && `${t.join(', ')} — тренування`, e.length && `${e.join(', ')} — англійська`].filter(Boolean).join(' · ') || 'порожній';
+  return HABIT_IDS.map((hb) => {
+    const on = days.map((d, i) => (scheduledOn(d, hb) ? WEEKDAYS_CAP[i] : null)).filter(Boolean);
+    return on.length && `${on.join(', ')} — ${HABITS[hb].name.toLowerCase()}`;
+  }).filter(Boolean).join(' · ') || 'порожній';
 }
 
 function pausesSummary(settings) {
@@ -57,10 +60,92 @@ export function renderSettings(view, ctx) {
       h('div', { class: 'group' },
         row({ icon: 'flag', title: 'Контрольні точки', sub: checkpointsSummary(store), onClick: () => openCheckpoints(store) }),
         row({ icon: 'medal', title: 'Досягнення', sub: achievementsLine(store), onClick: () => openAchievements(store) }),
+        row({ icon: 'copy', title: 'Скопіювати дані (JSON)', sub: 'резервна копія всіх ключів у буфер обміну', onClick: () => openBackup(store) }),
         row({ icon: 'swap', title: 'Імпорт і експорт', sub: 'CSV, JSON, XLSX', soon: 'Етап 3' })),
       h('div', { class: 'group' },
         row({ icon: 'info', title: 'Про застосунок', sub: store.mode === 'cloud' ? 'дані в хмарі Telegram' : 'дані в цьому браузері', onClick: () => openAbout(ctx) }))),
   );
+}
+
+// ——— Резервна копія ———
+
+/**
+ * Скопіювати текст: Clipboard API → execCommand('copy') через прихований textarea → false (тоді — вручну).
+ * Викликати прямо з обробника тапу: деякі WebView (iOS) дозволяють буфер лише в межах жесту.
+ */
+async function copyText(text) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch { /* далі — запасний шлях */ }
+  const ta = h('textarea', { readonly: '', 'aria-hidden': 'true', style: { position: 'fixed', top: '0', left: '-9999px', opacity: '0' } });
+  ta.value = text;
+  document.body.append(ta);
+  let ok = false;
+  try {
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    ok = document.execCommand('copy');
+  } catch { ok = false; }
+  ta.remove();
+  return ok;
+}
+
+const kb = (n) => (n < 1024 ? `${n} Б` : `${(n / 1024).toFixed(n < 10240 ? 1 : 0).replace('.', ',')} КБ`);
+
+function openBackup(store) {
+  openSheet({
+    title: 'Резервна копія',
+    subtitle: 'Усі ключі сховища одним JSON',
+    render(body, sheet) {
+      let text = null;
+      const info = h('p', { class: 'small muted' }, 'Читаю дані…');
+      const manual = h('div', { class: 'stack-s', hidden: true });
+      const copy = h('button', {
+        type: 'button',
+        class: 'btn btn-primary btn-wide',
+        disabled: true,
+        onclick: async () => {
+          if (!text) return;
+          if (await copyText(text)) {
+            haptic.success();
+            toast('Скопійовано в буфер обміну');
+            sheet.close();
+            return;
+          }
+          // Буфер недоступний (WebView без дозволу): показуємо текст — виділити й скопіювати вручну.
+          const ta = h('textarea', { class: 'input backup-text', readonly: '', rows: 8 });
+          ta.value = text;
+          ta.addEventListener('focus', () => ta.select());
+          manual.replaceChildren(
+            h('p', { class: 'small' }, 'Автоматично скопіювати не вдалося. Текст нижче вже виділено — натисни «Копіювати» в меню (або утримуй палець на тексті).'),
+            ta,
+            h('button', { type: 'button', class: 'btn btn-soft btn-wide', onclick: () => { ta.focus(); ta.select(); } }, 'Виділити все'));
+          manual.hidden = false;
+          ta.focus();
+          ta.select();
+        },
+      }, icon('copy'), 'Скопіювати');
+
+      body.append(
+        info,
+        h('p', { class: 'hint' }, 'Це лише копія: встав її в нотатки чи файл. Відновлення з копії зʼявиться разом з імпортом.'),
+        h('div', { class: 'sheet-actions' }, copy),
+        manual);
+
+      store.snapshot().then((values) => {
+        if (sheet.closed) return;
+        const backup = buildBackup(values, { app: APP_VERSION, at: new Date().toISOString(), storage: store.mode });
+        text = backupText(backup);
+        info.textContent = `${backup.keys} ${plural(backup.keys, ['ключ', 'ключі', 'ключів'])} · ${kb(text.length)}`;
+        copy.disabled = false;
+      }).catch((err) => {
+        info.textContent = `Не вдалося прочитати дані: ${err?.message || err}`;
+      });
+    },
+  });
 }
 
 // ——— Розклад ———
@@ -79,7 +164,7 @@ function openSchedule(store) {
           ...days.map((d, i) => h('div', { class: `sched-row ${i > 4 ? 'we' : ''}` },
             h('span', { class: 'sched-day', title: WEEKDAYS[i] }, WEEKDAYS_CAP[i]),
             h('div', { class: 'mini-seg habit-train', role: 'radiogroup', 'aria-label': `${WEEKDAYS[i]}: тренування` },
-              [0, 1, 2, 3].map((n) => h('button', {
+              [0, ...PROGRAM_DAYS].map((n) => h('button', {
                 type: 'button',
                 role: 'radio',
                 class: d.train === n ? 'on' : '',
@@ -99,7 +184,7 @@ function openSchedule(store) {
       paintTable();
 
       const focus = h('div', { class: 'card stack-s' },
-        [1, 2, 3].map((n) => h('label', { class: 'field' },
+        PROGRAM_DAYS.map((n) => h('label', { class: 'field' },
           h('span', { class: 'field-label' }, `День ${n}`),
           h('input', {
             class: 'input',
@@ -120,7 +205,7 @@ function openSchedule(store) {
               const same = JSON.stringify(last.days) === JSON.stringify(days);
               if (last.from >= today) last.days = days;
               else if (!same) s.schedule.push({ from: today, days });
-              for (const n of [1, 2, 3]) s.workouts[n] = workouts[n].trim() || DEFAULT_WORKOUTS[n];
+              for (const n of PROGRAM_DAYS) s.workouts[n] = workouts[n].trim() || DEFAULT_WORKOUTS[n];
               return s;
             });
             haptic.success();

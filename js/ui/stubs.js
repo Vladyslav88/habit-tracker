@@ -1,5 +1,6 @@
 // Вкладка «Англійська» — зʼявиться в Етапі 2б. Поки — акуратна заглушка з кількома цифрами.
 import { plural } from '../dates.js';
+import { hasModule } from '../habits.js';
 import { h } from './dom.js';
 
 function soon({ emoji, title, text, facts }) {
@@ -14,7 +15,7 @@ function soon({ emoji, title, text, facts }) {
 export function renderEnglish(view, { store }) {
   const topics = store.topics().length;
   let openHw = 0;
-  for (const [id, e] of store.entries) if (id.endsWith(':eng') && e.hw?.text && e.hw.done !== true) openHw++;
+  for (const [id, e] of store.entries) if (hasModule(id.slice(11), 'hw') && e.hw?.text && e.hw.done !== true) openHw++;
   view.replaceChildren(
     h('header', { class: 'page-head' }, h('h1', null, 'Англійська')),
     h('div', { class: 'page-body' }, soon({

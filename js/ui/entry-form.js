@@ -1,6 +1,9 @@
 // Форми записів: покрокова (одразу після відмітки), повний редактор і перегляд деталей.
+// Поля модулів звички (js/modules.js) — у FIELDS і DETAILS; які кроки в якої звички — entrySteps (js/habits.js).
 import { fmtShort } from '../dates.js';
-import { DUR, ENERGY, HABITS, LIMITS, REASONS, durLabel, energyOf, reasonLabel } from '../entry.js';
+import { ENERGY, LIMITS, REASONS, energyOf, reasonLabel } from '../entry.js';
+import { entrySteps, HABITS, hasModule, moduleChips } from '../habits.js';
+import { DUR, durLabel, PROGRAM_DAYS } from '../modules.js';
 import { planFor } from '../schedule.js';
 import { haptic } from '../tg.js';
 import { h, icon } from './dom.js';
@@ -8,20 +11,22 @@ import { confirmDialog, openSheet, toast } from './sheet.js';
 
 // ——— Підписи ———
 
+/** День програми: із запису, інакше з розкладу на дату. */
 export function trainDayOf(store, date, entry) {
   return entry?.day ?? planFor(store.settings, date).trainDay;
 }
 
 export function habitTitle(store, habit, date, entry) {
-  if (habit !== 'train') return HABITS.eng.name;
-  const day = trainDayOf(store, date, entry);
-  return day ? `Тренування · День ${day}` : 'Тренування';
+  const def = HABITS[habit];
+  const day = hasModule(habit, 'program') ? trainDayOf(store, date, entry) : null;
+  return day ? `${def.name} · День ${day}` : def.name;
 }
 
 export function habitSubtitle(store, habit, date, entry) {
-  if (habit !== 'train') return 'Заняття з тютором';
+  const def = HABITS[habit];
+  if (!hasModule(habit, 'program')) return def.subtitle;
   const day = trainDayOf(store, date, entry);
-  return day ? store.settings.workouts[day] : 'Позапланове тренування';
+  return day ? store.settings.workouts[day] : def.offPlan;
 }
 
 /** Короткі чипи-підсумки запису для карток. */
@@ -29,13 +34,8 @@ export function entryChips(habit, e) {
   const out = [];
   if (e.s === 'miss') {
     e.reasons.forEach((r) => out.push({ text: reasonLabel(r) }));
-  } else if (habit === 'train') {
-    if (e.dur) out.push({ text: durLabel(e.dur), icon: 'clock' });
-    if (e.back === true) out.push({ text: 'Спина', cls: 'chip-back' });
-    if (e.back === false) out.push({ text: 'Спина ок' });
   } else {
-    if (e.topic) out.push({ text: e.topic, cls: 'chip-topic' });
-    if (e.hw?.text) out.push({ text: e.hw.done ? 'Домашка ✓' : 'Домашка', cls: e.hw.done ? '' : 'chip-hw' });
+    out.push(...moduleChips(habit, e));
   }
   const en = energyOf(e.energy);
   if (en) out.push({ text: `${en.emoji} ${en.label}` });
@@ -48,23 +48,25 @@ export function chipRow(chips) {
   return h('div', { class: 'mini-chips' }, chips.map((c) => h('span', { class: `mini-chip ${c.cls || ''}` }, c.icon && icon(c.icon), c.text)));
 }
 
+/** Рядки деталей виконаного запису по модулях (для шторки дня). «Програма» окремого рядка не має — День у заголовку. */
+const DETAILS = {
+  dur: (e, row) => row('Тривалість', durLabel(e.dur) || '—'),
+  back: (e, row) => row('Спина', e.back === true ? 'був дискомфорт' : e.back === false ? 'все добре' : '—', e.back ? 'is-back' : ''),
+  topic: (e, row) => row('Тема', e.topic || '—'),
+  hw: (e, row) => row('Домашка', e.hw
+    ? h('span', null, e.hw.text || '—',
+      h('span', { class: `hw-state ${e.hw.done ? 'ok' : ''}` }, e.hw.done === true ? ' · виконав' : e.hw.done === false ? ' · ще ні' : ''))
+    : '—'),
+};
+
 /** Повний перелік полів запису (для шторки дня). */
 export function entryDetails(habit, e) {
   const rows = [];
   const row = (label, value, cls = '') => rows.push(h('div', { class: `drow ${cls}` }, h('dt', null, label), h('dd', null, value)));
   if (e.s === 'miss') {
     row('Причини', e.reasons.length ? e.reasons.map(reasonLabel).join(', ') : '—');
-  } else if (habit === 'train') {
-    row('Тривалість', durLabel(e.dur) || '—');
-    row('Спина', e.back === true ? 'був дискомфорт' : e.back === false ? 'все добре' : '—', e.back ? 'is-back' : '');
   } else {
-    row('Тема', e.topic || '—');
-    if (e.hw) {
-      row('Домашка', h('span', null, e.hw.text || '—',
-        h('span', { class: `hw-state ${e.hw.done ? 'ok' : ''}` }, e.hw.done === true ? ' · виконав' : e.hw.done === false ? ' · ще ні' : '')));
-    } else {
-      row('Домашка', '—');
-    }
+    HABITS[habit].modules.forEach((m) => DETAILS[m]?.(e, row));
   }
   const en = energyOf(e.energy);
   row('Енергія', en ? `${en.emoji} ${en.label}` : '—');
@@ -122,7 +124,7 @@ const FIELDS = {
     q: 'Який День програми?',
     auto: true,
     render: (ctx) => choice({
-      options: [1, 2, 3].map((n) => ({ v: n, label: `День ${n}` })),
+      options: PROGRAM_DAYS.map((n) => ({ v: n, label: `День ${n}` })),
       value: ctx.draft.day,
       onChange: (v) => ctx.set({ day: v }, true),
     }),
@@ -204,12 +206,6 @@ const FIELDS = {
   },
 };
 
-function stepsFor(habit, s, bonus) {
-  if (s === 'miss') return ['reasons', 'energy', 'comment'];
-  if (habit === 'train') return [...(bonus ? ['day'] : []), 'dur', 'back', 'energy', 'comment'];
-  return ['topic', 'hw', 'energy', 'comment'];
-}
-
 // ——— Відмітка + покрокова форма ———
 
 /**
@@ -237,7 +233,7 @@ export function markAndAsk(store, date, habit, s, extra = {}, host = null, opts 
 }
 
 export function openStepForm(store, date, habit, entry, host = null, opts = {}) {
-  const steps = stepsFor(habit, entry.s, entry.bonus);
+  const steps = entrySteps(habit, entry.s, entry.bonus);
   const draft = structuredClone(entry);
   let i = 0;
   let saveTimer = null;
@@ -343,7 +339,7 @@ export function openEntryEditor(store, date, habit, host = null) {
 
       function paint() {
         statusSwitch?.querySelectorAll('.seg').forEach((b) => b.classList.toggle('on', b.dataset.s === draft.s));
-        const keys = stepsFor(habit, draft.s, habit === 'train' && existing.bonus);
+        const keys = entrySteps(habit, draft.s, existing.bonus);
         fieldsBox.replaceChildren(...keys.map((k) => h('section', { class: 'editor-field' },
           h('h3', { class: 'field-title' }, FIELDS[k].q),
           FIELDS[k].render(ctx))));

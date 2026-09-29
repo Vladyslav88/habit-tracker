@@ -3,7 +3,7 @@
 // до дати старту нічого не рахується. Що вже отримано — зберігається окремо (ключ `ach`, store.js).
 import { countedRecords, distinctTopics, habitStats, streaks } from './analytics.js';
 import { daysInMonth, keyOf, parseKey } from './dates.js';
-import { HABIT_IDS } from './entry.js';
+import { HABIT_IDS, hasModule } from './habits.js';
 import { pauseOn } from './schedule.js';
 
 /**
@@ -29,6 +29,12 @@ export const ACHIEVEMENTS = [
 
 export const ACH_IDS = ACHIEVEMENTS.map((a) => a.id);
 export const achievementById = (id) => ACHIEVEMENTS.find((a) => a.id === id) || null;
+
+/**
+ * «Перший крок» і чотири сезонні досягнення привʼязані до тренування (id звички, рішення етапу 4);
+ * «Поліглот» і «Домашка — святе» — до модулів «Тема» і «Домашка»; серії й «Без відмовок» — до всіх звичок.
+ */
+const TRAIN = 'train';
 
 /** Пороги (SPEC §8, рішення Етапу 2б). */
 export const ACH_RULES = { winterRun: 12, homeworkRun: 10 };
@@ -81,7 +87,7 @@ export function evaluateAchievements(settings, entries, today) {
   }
 
   const records = countedRecords(settings, entries, start, today, today);
-  const trainsDone = records.filter((r) => r.habit === 'train' && r.kind !== 'miss');
+  const trainsDone = records.filter((r) => r.habit === TRAIN && r.kind !== 'miss');
 
   // Перший крок
   put('first_step', trainsDone.length > 0, trainsDone.length ? 1 : 0, 1);
@@ -94,14 +100,14 @@ export function evaluateAchievements(settings, entries, today) {
   const autumns = seasonSpans('autumn', start, today);
   const goldenDone = autumns.some((sp) => {
     if (sp.end >= today) return false;
-    const r = habitStats(settings, entries, sp.from, sp.to, today).train;
+    const r = habitStats(settings, entries, sp.from, sp.to, today)[TRAIN];
     return r.planned > 0 && !bad(r);
   });
   const nowAutumn = autumns.find((sp) => sp.end >= today);
   if (goldenDone) {
     put('golden_autumn', true, 1, 1);
   } else if (nowAutumn) {
-    const r = habitStats(settings, entries, nowAutumn.from, nowAutumn.end, today).train;
+    const r = habitStats(settings, entries, nowAutumn.from, nowAutumn.end, today)[TRAIN];
     const need = r.planned + r.pending;
     put('golden_autumn', false, bad(r) ? 0 : r.done, Math.max(need, 1), bad(r)
       ? 'Цієї осені вже є пропуск — наступна спроба з 1 вересня.'
@@ -116,7 +122,7 @@ export function evaluateAchievements(settings, entries, today) {
 
   // Зимовий гарт: найкраща серія тренувань у межах однієї зими
   const winters = seasonSpans('winter', start, today);
-  const winterBest = Math.max(0, ...winters.map((sp) => streaks(settings, entries, 'train', today, sp.from, sp.to).best));
+  const winterBest = Math.max(0, ...winters.map((sp) => streaks(settings, entries, TRAIN, today, sp.from, sp.to).best));
   put('winter_grit', winterBest >= ACH_RULES.winterRun, winterBest, ACH_RULES.winterRun,
     winters.length ? null : 'Серія рахується з 1 грудня до кінця лютого.');
 
@@ -153,13 +159,13 @@ export function evaluateAchievements(settings, entries, today) {
     put('no_excuses', false, 0, 1, 'Рахуються повні місяці від початку відстеження — перший з 1 числа наступного.');
   }
 
-  // Поліглот: різні теми англійської за весь час
+  // Поліглот: різні теми (модуль «Тема») за весь час
   const topics = distinctTopics(records);
   for (const n of [25, 50, 100]) put(`polyglot_${n}`, topics >= n, topics, n);
 
   // Домашка — святе: домашки поспіль (у порядку дат) позначені виконаними.
   // «Не виконав» обриває серію; остання ще не позначена домашка — ні (її час ще не настав).
-  const hws = records.filter((r) => r.habit === 'eng' && r.kind !== 'miss' && r.entry.hw?.text);
+  const hws = records.filter((r) => hasModule(r.habit, 'hw') && r.kind !== 'miss' && r.entry.hw?.text);
   let run = 0;
   let hwBest = 0;
   hws.forEach((r, i) => {

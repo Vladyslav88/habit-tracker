@@ -1,6 +1,6 @@
 // Вкладка «Календар» (SPEC §7).
 import { daysInMonth, fmtLong, keyOf, MONTHS, plural, todayKey, WEEKDAYS_CAP } from '../dates.js';
-import { HABITS, HABIT_IDS } from '../entry.js';
+import { HABITS, HABIT_IDS } from '../habits.js';
 import { dayInfo, monthSummary } from '../schedule.js';
 import { SEASONS, seasonOf } from '../seasons.js';
 import { haptic } from '../tg.js';
@@ -48,18 +48,20 @@ function dayCell(store, date, today) {
     items.some((it) => it.back) && h('span', { class: 'back-dot', 'aria-hidden': 'true' }));
 }
 
+const SHAPE_TEXT = { circle: 'коло', square: 'квадрат' };
+
 function legend() {
   const item = (sample, text) => h('span', { class: 'lg' }, sample, text);
   const disc = (cls, txt = '') => h('span', { class: `lg-disc ${cls}` }, txt);
-  const pair = h('span', { class: 'lg-pair' }, h('span', { class: 'mk st-done habit-train' }), h('span', { class: 'mk st-done habit-eng' }));
+  const [first] = HABIT_IDS; // зразок кольору для станів
+  const pair = h('span', { class: 'lg-pair' }, HABIT_IDS.map((hb) => h('span', { class: `mk st-done habit-${hb}` })));
   return h('section', { class: 'legend', 'aria-label': 'Легенда' },
-    item(disc('st-done habit-train'), 'тренування (коло)'),
-    item(disc('st-done habit-eng'), 'англійська (квадрат)'),
+    HABIT_IDS.map((hb) => item(disc(`st-done habit-${hb}`), `${HABITS[hb].name.toLowerCase()} (${SHAPE_TEXT[HABITS[hb].shape]})`)),
     item(disc('st-miss', '×'), 'пропуск'),
-    item(disc('st-planned habit-train'), 'заплановано'),
-    item(disc('st-unmarked habit-train'), 'не відмічено'),
+    item(disc(`st-planned habit-${first}`), 'заплановано'),
+    item(disc(`st-unmarked habit-${first}`), 'не відмічено'),
     item(disc('is-pause'), 'пауза'),
-    item(disc('lg-bonus habit-train', '+'), 'бонус'),
+    item(disc(`lg-bonus habit-${first}`, '+'), 'бонус'),
     item(h('span', { class: 'lg-dot' }), 'спина'),
     item(pair, 'дві звички в один день'),
     item(disc('is-today'), 'сьогодні'));

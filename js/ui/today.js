@@ -1,6 +1,6 @@
 // Вкладка «Сьогодні» (SPEC §5.1).
 import { daysInMonth, fmtDay, fmtLong, fmtShort, fmtTime, keyOf, MONTHS_GEN, parseKey, relDays, todayKey } from '../dates.js';
-import { HABITS, HABIT_IDS } from '../entry.js';
+import { HABITS, HABIT_IDS, hasDetails } from '../habits.js';
 import { sceneMarkup } from '../scenes.js';
 import { currentLook, greetingFor, SEASONS, seasonOf } from '../seasons.js';
 import { entryId, planFor, unmarked, upcoming } from '../schedule.js';
@@ -10,9 +10,6 @@ import { achievementsSummary, openAchievements } from './achievements.js';
 import { chipRow, entryChips, habitSubtitle, habitTitle, markAndAsk, openEntryEditor, openStepForm } from './entry-form.js';
 import { openMonthCard } from './month.js';
 import { openSheet, toast } from './sheet.js';
-
-const hasDetails = (habit, e) => e.energy || e.comment || e.reasons.length
-  || (habit === 'train' ? e.dur || e.back !== null : e.topic || e.hw);
 
 function habitCard(store, date, habit, entry) {
   const done = entry?.s === 'done';
@@ -77,7 +74,7 @@ function openBonusPicker(store, date, habits) {
 }
 
 function homeworkCard(store, hw) {
-  return h('article', { class: 'card hw-card habit-eng' },
+  return h('article', { class: `card hw-card habit-${hw.habit}` },
     h('div', { class: 'hw-head' },
       h('span', { class: 'small muted' }, `Домашка з ${fmtDay(hw.date)}`),
       hw.entry.topic && h('span', { class: 'small muted' }, `· ${hw.entry.topic}`)),
@@ -86,7 +83,7 @@ function homeworkCard(store, hw) {
       type: 'button',
       class: 'btn btn-soft btn-sm',
       onclick: () => {
-        store.saveEntry(hw.date, 'eng', { hw: { ...hw.entry.hw, done: true } });
+        store.saveEntry(hw.date, hw.habit, { hw: { ...hw.entry.hw, done: true } });
         haptic.light();
         toast('Домашку виконано ✓');
       },

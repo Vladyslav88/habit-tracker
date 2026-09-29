@@ -1,17 +1,7 @@
-// Схема записів (SPEC §4): довідники, підписи і нормалізація.
-
-export const HABIT_IDS = ['train', 'eng'];
-
-export const HABITS = {
-  train: { id: 'train', name: 'Тренування', icon: 'dumbbell', forms: ['тренування', 'тренування', 'тренувань'], ofForms: ['тренування', 'тренувань', 'тренувань'] },
-  eng: { id: 'eng', name: 'Англійська', icon: 'chat', forms: ['заняття', 'заняття', 'занять'], ofForms: ['заняття', 'занять', 'занять'] },
-};
-
-export const DUR = [
-  { v: 'lt60', label: 'до 60 хв' },
-  { v: '60-70', label: '60–70 хв' },
-  { v: 'gt70', label: 'понад 70 хв' },
-];
+// Схема записів (SPEC §4): ядро запису (статус, бонус, енергія, причини, коментар), довідники й нормалізація.
+// Поля модулів (День програми, тривалість, спина, тема, домашка) — js/modules.js; які модулі в якої звички — js/habits.js.
+import { HABITS } from './habits.js';
+import { HW_MAX, MODULES, str, TOPIC_MAX } from './modules.js';
 
 export const REASONS = [
   { v: 'tired', label: 'Втома' },
@@ -29,22 +19,20 @@ export const ENERGY = [
   { v: 5, emoji: '🤩', label: 'Супер' },
 ];
 
-export const LIMITS = { comment: 800, topic: 150, hw: 400 };
+export const LIMITS = { comment: 800, topic: TOPIC_MAX, hw: HW_MAX };
 
-export const durLabel = (v) => DUR.find((d) => d.v === v)?.label ?? '';
 export const reasonLabel = (v) => REASONS.find((r) => r.v === v)?.label ?? v;
 export const energyOf = (v) => ENERGY.find((e) => e.v === v) ?? null;
-
-const str = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
-const boolOrNull = (v) => (v === true || v === false ? v : null);
-const oneOf = (v, list) => (list.includes(v) ? v : null);
 
 /**
  * Приводить запис до схеми: відкидає невідомі поля, обрізає тексти,
  * очищує поля, що не стосуються статусу. Кидає помилку, якщо статус неправильний.
+ * Порядок полів: s, bonus, поля модулів (у порядку модулів звички), energy, reasons, comment, ts.
  */
 export function normalizeEntry(habit, raw) {
-  if (!HABIT_IDS.includes(habit)) throw new Error(`Невідома звичка: ${habit}`);
+  // habit — id вбудованої звички або визначення власної (з полем modules).
+  const def = typeof habit === 'string' ? HABITS[habit] : habit;
+  if (!def || !Array.isArray(def.modules)) throw new Error(`Невідома звичка: ${typeof habit === 'string' ? habit : habit?.id}`);
   if (!raw || (raw.s !== 'done' && raw.s !== 'miss')) throw new Error('Статус має бути done або miss');
   const done = raw.s === 'done';
   const energy = Number.isInteger(raw.energy) && raw.energy >= 1 && raw.energy <= 5 ? raw.energy : null;
@@ -52,34 +40,7 @@ export function normalizeEntry(habit, raw) {
     ? []
     : REASONS.map((r) => r.v).filter((v) => raw.reasons.includes(v));
   const ts = typeof raw.ts === 'string' && !Number.isNaN(Date.parse(raw.ts)) ? raw.ts : new Date().toISOString();
-  const base = { s: raw.s, bonus: raw.bonus === true };
-
-  if (habit === 'train') {
-    return {
-      ...base,
-      day: oneOf(raw.day, [1, 2, 3]),
-      dur: done ? oneOf(raw.dur, DUR.map((d) => d.v)) : null,
-      back: done ? boolOrNull(raw.back) : null,
-      energy,
-      reasons,
-      comment: str(raw.comment, LIMITS.comment),
-      ts,
-    };
-  }
-
-  let hw = null;
-  if (done && raw.hw && typeof raw.hw === 'object') {
-    const text = str(raw.hw.text, LIMITS.hw);
-    const hwDone = boolOrNull(raw.hw.done);
-    if (text || hwDone !== null) hw = { text, done: hwDone };
-  }
-  return {
-    ...base,
-    topic: done ? str(raw.topic, LIMITS.topic) : '',
-    hw,
-    energy,
-    reasons,
-    comment: str(raw.comment, LIMITS.comment),
-    ts,
-  };
+  const out = { s: raw.s, bonus: raw.bonus === true };
+  for (const m of def.modules) Object.assign(out, MODULES[m].normalize(raw, done));
+  return { ...out, energy, reasons, comment: str(raw.comment, LIMITS.comment), ts };
 }

@@ -1,6 +1,6 @@
 // Шторка дня з календаря: усі деталі, редагування/видалення заднім числом. Майбутнє — лише перегляд.
 import { fmtDay, fmtLong, parseKey, relDays, todayKey } from '../dates.js';
-import { HABITS, HABIT_IDS } from '../entry.js';
+import { HABITS, HABIT_IDS } from '../habits.js';
 import { dayInfo } from '../schedule.js';
 import { seasonOf } from '../seasons.js';
 import { h, icon } from './dom.js';
