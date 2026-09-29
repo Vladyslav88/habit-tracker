@@ -1,7 +1,6 @@
 // Розклад, паузи і похідні стани днів (SPEC §3, §7). Лише чисті функції.
 import { addDays, daysInMonth, isValidKey, keyOf, weekdayIdx } from './dates.js';
-import { HABIT_IDS, hasModule, programDayOn, scheduledOn } from './habits.js';
-import { PROGRAM_DAYS } from './modules.js';
+import { HABIT_IDS } from './entry.js';
 
 export const SCHEMA_VERSION = 1;
 /** Дата «з початку часів» для першої версії розкладу. */
@@ -47,7 +46,7 @@ export function defaultSettings(startDate) {
 function normDays(days) {
   if (!Array.isArray(days) || days.length !== 7) return structuredClone(DEFAULT_DAYS);
   return days.map((d) => ({
-    train: [0, ...PROGRAM_DAYS].includes(d?.train) ? d.train : 0,
+    train: [0, 1, 2, 3].includes(d?.train) ? d.train : 0,
     eng: d?.eng === true,
   }));
 }
@@ -63,7 +62,7 @@ export function normalizeSettings(raw, fallbackStart) {
       .sort((a, b) => (a.from < b.from ? -1 : 1))
     : [];
   const workouts = { ...DEFAULT_WORKOUTS };
-  for (const n of PROGRAM_DAYS) {
+  for (const n of [1, 2, 3]) {
     const w = raw.workouts?.[n];
     if (typeof w === 'string' && w.trim()) workouts[n] = w.trim().slice(0, 80);
   }
@@ -112,31 +111,18 @@ export function pauseOn(settings, date) {
 
 /**
  * План на дату.
- * planned — що стоїть у розкладі; habits — що реально треба зробити (порожньо, якщо пауза);
- * trainDay — День програми (модуль «Програма»; назва поля історична).
+ * planned — що стоїть у розкладі; habits — що реально треба зробити (порожньо, якщо пауза).
  */
 export function planFor(settings, date) {
   const day = daysFor(settings, date)[weekdayIdx(date)];
-  const planned = HABIT_IDS.filter((habit) => scheduledOn(day, habit));
+  const planned = [];
+  if (day.train) planned.push('train');
+  if (day.eng) planned.push('eng');
   const pause = pauseOn(settings, date);
-  return { planned, habits: pause ? [] : planned, trainDay: programDayOn(day), pause };
+  return { planned, habits: pause ? [] : planned, trainDay: day.train || null, pause };
 }
 
 export const isPlanned = (settings, date, habit) => planFor(settings, date).habits.includes(habit);
-
-/**
- * Чи заплановано власну звичку на дату: від дати створення до архіву (день архіву — уже ні),
- * за версією її розкладу на дату (days[0] = понеділок); пауза — спільна для всіх звичок.
- */
-export function habitPlanned(settings, def, date) {
-  if (date < def.created || (def.archived && date >= def.archived)) return false;
-  let days = null;
-  for (const v of def.sched) {
-    if (v.from <= date) days = v.days;
-    else break;
-  }
-  return !!days?.[weekdayIdx(date)] && !pauseOn(settings, date);
-}
 
 /** Наступні дні з запланованими звичками (після дати `from`). */
 export function upcoming(settings, from, count = 1, horizon = 120) {
@@ -183,7 +169,7 @@ export function dayInfo(settings, entries, date, today) {
         habit,
         state: e.s,
         bonus: e.s === 'done' && !isPlan,
-        back: hasModule(habit, 'back') && e.back === true,
+        back: habit === 'train' && e.back === true,
         entry: e,
       });
     } else if (isPlan && (date >= today || tracked)) {

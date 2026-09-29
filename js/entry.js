@@ -30,8 +30,9 @@ export const energyOf = (v) => ENERGY.find((e) => e.v === v) ?? null;
  * Порядок полів: s, bonus, поля модулів (у порядку модулів звички), energy, reasons, comment, ts.
  */
 export function normalizeEntry(habit, raw) {
-  const def = HABITS[habit];
-  if (!def) throw new Error(`Невідома звичка: ${habit}`);
+  // habit — id вбудованої звички або визначення власної (з полем modules).
+  const def = typeof habit === 'string' ? HABITS[habit] : habit;
+  if (!def || !Array.isArray(def.modules)) throw new Error(`Невідома звичка: ${typeof habit === 'string' ? habit : habit?.id}`);
   if (!raw || (raw.s !== 'done' && raw.s !== 'miss')) throw new Error('Статус має бути done або miss');
   const done = raw.s === 'done';
   const energy = Number.isInteger(raw.energy) && raw.energy >= 1 && raw.energy <= 5 ? raw.energy : null;

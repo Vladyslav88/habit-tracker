@@ -1,25 +1,15 @@
-// Дані застосунку поверх адаптера сховища: налаштування, записи, визначення власних звичок, упаковка старих місяців.
+// Дані застосунку поверх адаптера сховища: налаштування, записи, упаковка старих місяців.
 import { isValidKey, keyOf, monthKey, parseKey, todayKey } from './dates.js';
-import { normalizeEntry } from './entry.js';
-import {
-  ENTRY_HABIT_RE, entryDef, habitsWith, hasModule, HABIT_ID_RE, isHabit, MAX_ACTIVE, newerHabit, newHabitId, nextUpd,
-  normalizeHabit,
-} from './habits.js';
-import { defaultSettings, entryId, habitPlanned, normalizeSettings, planFor } from './schedule.js';
+import { HABIT_IDS, normalizeEntry } from './entry.js';
+import { defaultSettings, entryId, normalizeSettings, planFor } from './schedule.js';
 import { VALUE_MAX } from './storage.js';
 
 export const SETTINGS_KEY = 'settings';
 export const ACH_KEY = 'ach';
 export const PACK_THRESHOLD = 900;
 
-// Записи будь-якої звички: вбудованої, власної або ще невідомої (визначення могло не приїхати) —
-// останні не показуються, але й не вважаються зіпсованими й не губляться.
-const HABIT_PART = ENTRY_HABIT_RE.source.slice(1, -1);
-const ENTRY_KEY_RE = new RegExp(`^e_(\\d{4}-\\d{2}-\\d{2})_(${HABIT_PART})$`);
-const PACKED_ID_RE = new RegExp(`^(\\d{4}-\\d{2}-\\d{2})_(${HABIT_PART})$`);
-// Пакети: m_ — лише train/eng (їх читає й переписує стара версія 0.4.2), n_ — усі інші звички (стара версія їх не бачить).
-const PACK_KEY_RE = /^[mn]_(\d{4}-\d{2})_(\d+)$/;
-const HABIT_KEY_RE = new RegExp(`^h_(${HABIT_ID_RE.source.slice(1, -1)})$`);
+const ENTRY_KEY_RE = /^e_(\d{4}-\d{2}-\d{2})_(train|eng)$/;
+const PACK_KEY_RE = /^m_(\d{4}-\d{2})_(\d+)$/;
 const PACK_BUDGET = VALUE_MAX - 96;
 
 /** Початкова історія (SPEC §4) — імпортується, якщо сховище порожнє. */
@@ -29,9 +19,7 @@ export const INITIAL_HISTORY = [
 ];
 
 export const entryKey = (date, habit) => `e_${date}_${habit}`;
-export const habitKey = (id) => `h_${id}`;
-const packPrefix = (habit) => (isHabit(habit) ? 'm' : 'n');
-const packKey = (prefix, month, n) => `${prefix}_${month}_${n}`;
+const packKey = (month, n) => `m_${month}_${n}`;
 const noonIso = (date) => parseKey(date).toISOString();
 const ACH_ID_RE = /^[a-z0-9_]{1,40}$/;
 
@@ -67,20 +55,9 @@ function parseJson(str) {
   try { return JSON.parse(str); } catch { return null; }
 }
 
-/** Визначення з рядка сховища для ключа h_<id> (null — немає або зіпсоване). */
-function parseHabit(str, id) {
-  const def = normalizeHabit(parseJson(str));
-  return def && def.id === id ? def : null;
-}
-
-const sameHabit = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-
 export function createStore(storage) {
   let settings = null;
-  let entries = new Map(); // 'YYYY-MM-DD:habit' → запис (лише train / eng — їх показує інтерфейс)
-  let custom = new Map(); // 'YYYY-MM-DD:id' → запис власної звички з відомим визначенням
-  let orphans = new Map(); // 'YYYY-MM-DD:id' → запис як є: визначення звички ще немає (не показуємо, не губимо)
-  let habits = new Map(); // id → визначення власної звички (ключ h_<id>)
+  let entries = new Map(); // 'YYYY-MM-DD:habit' → запис
   let packOf = new Map(); // id → ключ пакета
   let packs = new Map(); // ключ пакета → Set(id)
   let ach = {};
@@ -104,43 +81,19 @@ export function createStore(storage) {
     return values;
   }
 
-  /**
-   * Розбір усіх значень сховища. local — визначення звичок у памʼяті: зливаються з хмарними (новіший `upd`),
-   * щоб записи звички, яку щойно створили тут, не стали «невідомими». writeBack — id, де памʼять новіша за хмару.
-   */
-  function ingest(values, local = new Map()) {
-    const next = { entries: new Map(), custom: new Map(), orphans: new Map(), habits: new Map(), packOf: new Map(), packs: new Map(), broken: 0, writeBack: [] };
-    const keys = Object.keys(values).filter((k) => values[k] !== '' && values[k] != null);
-    // Спершу визначення звичок: від них залежить, куди піде запис.
-    const cloud = new Map();
-    for (const k of keys) {
-      const m = HABIT_KEY_RE.exec(k);
-      if (!m) continue;
-      const def = parseHabit(values[k], m[1]);
-      if (def) cloud.set(m[1], def);
-      else next.broken++;
-    }
-    for (const id of new Set([...cloud.keys(), ...local.keys()])) {
-      const win = newerHabit(local.get(id), cloud.get(id));
-      next.habits.set(id, win);
-      if (!cloud.has(id) || !sameHabit(win, cloud.get(id))) next.writeBack.push(id);
-    }
+  function ingest(values) {
+    const next = { entries: new Map(), packOf: new Map(), packs: new Map(), broken: 0 };
     const put = (id, habit, raw) => {
-      if (isHabit(habit)) {
-        try { next.entries.set(id, normalizeEntry(habit, raw)); } catch { next.broken++; }
-        return;
-      }
-      const def = next.habits.get(habit);
-      if (!def) { next.orphans.set(id, raw); return; }
-      try { next.custom.set(id, normalizeEntry(entryDef(def, raw), raw)); } catch { next.broken++; }
+      try { next.entries.set(id, normalizeEntry(habit, raw)); } catch { next.broken++; }
     };
+    const keys = Object.keys(values).filter((k) => values[k] !== '' && values[k] != null);
     for (const k of keys) {
       if (!PACK_KEY_RE.test(k)) continue;
       const obj = parseJson(values[k]);
       if (!obj || typeof obj !== 'object') { next.broken++; continue; }
       const ids = new Set();
       for (const [inner, raw] of Object.entries(obj)) {
-        const m = PACKED_ID_RE.exec(inner);
+        const m = /^(\d{4}-\d{2}-\d{2})_(train|eng)$/.exec(inner);
         if (!m) { next.broken++; continue; }
         const id = entryId(m[1], m[2]);
         put(id, m[2], raw);
@@ -184,16 +137,11 @@ export function createStore(storage) {
 
   /** Бонус і День програми виводяться з розкладу на дату. */
   function withDerived(date, habit, data) {
-    const def = habits.get(habit);
-    if (def) {
-      const raw = { ...data, bonus: data.s === 'done' && !habitPlanned(settings, def, date) };
-      return normalizeEntry(entryDef(def, raw), raw);
-    }
     const plan = planFor(settings, date);
     const planned = plan.habits.includes(habit);
     // Бонус — лише виконана позапланова звичка; «пропуск бонусу» не має сенсу.
     const raw = { ...data, bonus: data.s === 'done' && !planned };
-    if (hasModule(habit, 'program') && raw.day == null && planned) raw.day = plan.trainDay;
+    if (habit === 'train' && raw.day == null && planned) raw.day = plan.trainDay;
     return normalizeEntry(habit, raw);
   }
 
@@ -205,12 +153,9 @@ export function createStore(storage) {
       return;
     }
     const obj = {};
-    for (const id of ids) obj[id.replace(':', '_')] = valueOf(id);
+    for (const id of ids) obj[id.replace(':', '_')] = entries.get(id);
     storage.set(key, JSON.stringify(obj));
   }
-
-  const valueOf = (id) => entries.get(id) ?? custom.get(id) ?? orphans.get(id);
-  const mapOf = (habit) => (isHabit(habit) ? entries : custom);
 
   function unpack(id) {
     const key = packOf.get(id);
@@ -221,43 +166,30 @@ export function createStore(storage) {
   }
 
   /**
-   * Пакує записи старих місяців (старших за попередній) у ключі m_YYYY-MM_N (train/eng) і n_YYYY-MM_N
-   * (решта звичок), щоб не впертися в ліміт 1024 ключі. Запускається лише коли ключів > PACK_THRESHOLD.
-   * Записи власних і невідомих звичок ніколи не кладуться в m_: стара версія, переписуючи m_, їх би загубила.
+   * Пакує записи старих місяців (старших за попередній) у ключі m_YYYY-MM_N,
+   * щоб не впертися в ліміт 1024 ключі. Запускається лише коли ключів > PACK_THRESHOLD.
    */
   function packOldMonths(force = false) {
     if (!force && keyCount <= PACK_THRESHOLD) return 0;
     const now = parseKey(todayKey());
     const limit = monthKey(keyOf(new Date(now.getFullYear(), now.getMonth() - 1, 1)));
-    const groups = new Map(); // 'n_YYYY-MM' / 'm_YYYY-MM' → [id]
-    for (const id of [...entries.keys(), ...custom.keys(), ...orphans.keys()]) {
+    const byMonth = new Map();
+    for (const id of entries.keys()) {
       const m = monthKey(id);
       if (m >= limit) continue;
-      const g = `${packPrefix(id.slice(11))}_${m}`;
-      if (!groups.has(g)) groups.set(g, []);
-      groups.get(g).push(id);
+      if (!byMonth.has(m)) byMonth.set(m, []);
+      byMonth.get(m).push(id);
     }
     let saved = 0;
-    const emptied = new Set(); // пакети, з яких забрали записи в інший префікс
-    // n_ — першими: записи, що опинились не в тому пакеті, спершу записуються в новий, потім зникають зі старого.
-    for (const g of [...groups.keys()].sort((a, b) => (a[0] === b[0] ? (a < b ? -1 : 1) : a[0] === 'n' ? -1 : 1))) {
-      const ids = groups.get(g);
-      const [prefix, month] = [g[0], g.slice(2)];
-      const inPlace = (id) => packOf.get(id)?.startsWith(`${prefix}_`);
+    for (const [month, ids] of byMonth) {
       const loose = ids.filter((id) => !packOf.has(id));
-      const moved = ids.filter((id) => packOf.has(id) && !inPlace(id));
-      if (!loose.length && !moved.length) continue;
-      for (const id of moved) {
-        const from = packOf.get(id);
-        packs.get(from)?.delete(id);
-        emptied.add(from);
-      }
+      if (!loose.length) continue;
       ids.sort();
       // Жадібно розкладаємо записи місяця по пакетах до ~4 КБ.
       const chunks = [[]];
       let size = 2;
       for (const id of ids) {
-        const len = JSON.stringify(valueOf(id)).length + id.length + 4;
+        const len = JSON.stringify(entries.get(id)).length + id.length + 4;
         if (size + len > PACK_BUDGET && chunks.at(-1).length) {
           chunks.push([]);
           size = 2;
@@ -265,23 +197,21 @@ export function createStore(storage) {
         chunks.at(-1).push(id);
         size += len;
       }
-      const oldKeys = [...packs.keys()].filter((k) => k.startsWith(`${prefix}_${month}_`));
+      const oldKeys = [...packs.keys()].filter((k) => k.startsWith(`m_${month}_`));
       chunks.forEach((chunk, n) => {
-        const key = packKey(prefix, month, n);
+        const key = packKey(month, n);
         packs.set(key, new Set(chunk));
         chunk.forEach((id) => packOf.set(id, key));
         writePack(key);
-        emptied.delete(key);
       });
       for (const k of oldKeys) {
         const n = Number(k.split('_')[2]);
-        if (n >= chunks.length) { packs.delete(k); storage.remove(k); emptied.delete(k); }
+        if (n >= chunks.length) { packs.delete(k); storage.remove(k); }
       }
       // Окремі ключі видаляються лише після запису пакетів — черга зберігає порядок.
       for (const id of loose) storage.remove(entryKey(id.slice(0, 10), id.slice(11)));
       saved += loose.length - chunks.length;
     }
-    for (const k of emptied) if (packs.has(k)) writePack(k);
     keyCount -= Math.max(0, saved);
     return saved;
   }
@@ -290,12 +220,14 @@ export function createStore(storage) {
     const gen = storage.writes;
     const values = await readAll();
     if (!storage.idle || storage.writes !== gen) return false;
-    const parsed = ingest(values, habits);
+    const parsed = ingest(values);
     if (parsed.keyCount === 0) return false;
-    apply(parsed);
+    entries = parsed.entries;
+    packOf = parsed.packOf;
+    packs = parsed.packs;
+    broken = parsed.broken;
+    keyCount = parsed.keyCount;
     settings = normalizeSettings(parsed.settingsRaw, settings.startDate);
-    // Звички: у памʼяті новіша версія, ніж у хмарі (або хмара її загубила) — записуємо назад злиттям.
-    parsed.writeBack.forEach(writeHabit);
     // Досягнення не замінюються, а зливаються: застарілий запис з іншого пристрою не забирає отримане тут.
     const cloudAch = normalizeAch(parsed.achRaw);
     ach = mergeAch(ach, cloudAch);
@@ -303,47 +235,6 @@ export function createStore(storage) {
     loadedAt = Date.now();
     emit();
     return true;
-  }
-
-  function apply(parsed) {
-    entries = parsed.entries;
-    custom = parsed.custom;
-    orphans = parsed.orphans;
-    habits = parsed.habits;
-    packOf = parsed.packOf;
-    packs = parsed.packs;
-    broken = parsed.broken;
-    keyCount = parsed.keyCount;
-  }
-
-  /**
-   * Записати визначення звички злиттям: прямо перед записом читається версія в сховищі, пишеться новіша (за `upd`).
-   * Якщо в сховищі була новіша (правка з іншого пристрою), вона стає локальною.
-   */
-  function writeHabit(id) {
-    const key = habitKey(id);
-    return storage.update(key, (raw) => JSON.stringify(newerHabit(parseHabit(raw, id), habits.get(id)))).then((res) => {
-      if (res.before !== null) {
-        const mine = habits.get(id);
-        const win = newerHabit(mine, parseHabit(res.before, id));
-        if (!sameHabit(win, mine)) { habits.set(id, win); emit(); }
-      }
-      return res;
-    });
-  }
-
-  const activeCount = () => [...habits.values()].filter((d) => !d.archived).length;
-
-  /** Усі id звичок, що вже траплялися (визначення, записи невідомих звичок) — новий id не має збігтися. */
-  function takenIds() {
-    const out = new Set(habits.keys());
-    for (const id of [...custom.keys(), ...orphans.keys()]) out.add(id.slice(11));
-    return out;
-  }
-
-  function checkSize(def) {
-    const n = JSON.stringify(def).length;
-    if (n > VALUE_MAX) throw new Error(`Звичка завелика (${n} із ${VALUE_MAX} символів)`);
   }
 
   /**
@@ -372,7 +263,11 @@ export function createStore(storage) {
       const values = await readAll();
       const parsed = ingest(values);
       const empty = parsed.keyCount === 0;
-      apply(parsed); // нічого не пише: визначення звичок лише читаються
+      entries = parsed.entries;
+      packOf = parsed.packOf;
+      packs = parsed.packs;
+      broken = parsed.broken;
+      keyCount = parsed.keyCount;
       ach = normalizeAch(parsed.achRaw);
       if (empty) {
         seed();
@@ -398,64 +293,18 @@ export function createStore(storage) {
       return refreshing;
     },
 
-    getEntry: (date, habit) => mapOf(habit).get(entryId(date, habit)) || null,
-
-    /** Власні звички (з архівними), за порядком. */
-    get habits() {
-      return [...habits.values()].sort((a, b) => a.order - b.order || (a.created < b.created ? -1 : a.created > b.created ? 1 : a.id < b.id ? -1 : 1));
-    },
-    getHabit: (id) => habits.get(id) || null,
-    /** Записи власних звичок з відомим визначенням ('YYYY-MM-DD:id' → запис). Показ — етап 3. */
-    get customEntries() { return custom; },
-    /** Скільки записів чекають на визначення своєї звички. */
-    get orphanCount() { return orphans.size; },
-
-    /**
-     * Створити власну звичку: { name, emoji, color, modules, days: [7 × bool, 0 = пн] }.
-     * Розклад діє з сьогодні. Стеля — MAX_ACTIVE активних (архівні не рахуються).
-     */
-    createHabit({ name, emoji, color, modules = [], days = [] } = {}) {
-      if (activeCount() >= MAX_ACTIVE) throw new Error(`Не більше ${MAX_ACTIVE} активних звичок`);
-      const today = todayKey();
-      const order = Math.max(-1, ...[...habits.values()].map((d) => d.order)) + 1;
-      const def = normalizeHabit({
-        id: newHabitId(takenIds()), name, emoji, color, modules, order, created: today, archived: null,
-        upd: nextUpd(null), sched: [{ from: today, days }],
-      });
-      checkSize(def);
-      habits.set(def.id, def);
-      keyCount++;
-      writeHabit(def.id);
-      emit();
-      return def;
-    },
-
-    /** Змінити звичку: patch зливається з визначенням (id і дата створення не змінюються). Архів — поле archived. */
-    updateHabit(id, patch) {
-      const cur = habits.get(id);
-      if (!cur) throw new Error('Невідома звичка');
-      const next = normalizeHabit({ ...cur, ...patch, id, created: cur.created, upd: nextUpd(cur.upd) });
-      if (cur.archived && !next.archived && activeCount() >= MAX_ACTIVE) throw new Error(`Не більше ${MAX_ACTIVE} активних звичок`);
-      checkSize(next);
-      habits.set(id, next);
-      writeHabit(id);
-      emit();
-      return next;
-    },
-    archiveHabit(id, date = todayKey()) { return api.updateHabit(id, { archived: date }); },
-    restoreHabit(id) { return api.updateHabit(id, { archived: null }); },
+    getEntry: (date, habit) => entries.get(entryId(date, habit)) || null,
 
     /** Створює або оновлює запис. `patch` зливається з наявним записом. */
     saveEntry(date, habit, patch) {
-      if (!isHabit(habit) && !habits.has(habit)) throw new Error('Невідома звичка');
+      if (!HABIT_IDS.includes(habit)) throw new Error('Невідома звичка');
       const id = entryId(date, habit);
-      const map = mapOf(habit);
-      const prev = map.get(id);
+      const prev = entries.get(id);
       const entry = withDerived(date, habit, { ...(prev || { ts: new Date().toISOString() }), ...patch });
       const key = entryKey(date, habit);
       storage.set(key, JSON.stringify(entry));
       if (!prev) keyCount++;
-      map.set(id, entry);
+      entries.set(id, entry);
       if (packOf.has(id)) unpack(id);
       else packOldMonths();
       emit();
@@ -464,10 +313,9 @@ export function createStore(storage) {
 
     deleteEntry(date, habit) {
       const id = entryId(date, habit);
-      const map = mapOf(habit);
-      if (!map.has(id)) return;
+      if (!entries.has(id)) return;
       const wasPacked = packOf.has(id);
-      map.delete(id);
+      entries.delete(id);
       if (wasPacked) unpack(id);
       storage.remove(entryKey(date, habit));
       if (!wasPacked) keyCount--;
@@ -507,11 +355,11 @@ export function createStore(storage) {
       return { added: add, fresh };
     },
 
-    /** Попередні теми (звички з модулем «Тема») — для автопідказок (новіші першими, без повторів). */
+    /** Попередні теми англійської — для автопідказок (новіші першими, без повторів). */
     topics() {
       const seen = new Map();
       const list = [...entries.entries()]
-        .filter(([id, e]) => hasModule(id.slice(11), 'topic') && e.topic)
+        .filter(([id, e]) => id.endsWith(':eng') && e.topic)
         .sort((a, b) => (a[0] < b[0] ? 1 : -1));
       for (const [, e] of list) {
         const k = e.topic.toLowerCase();
@@ -520,34 +368,23 @@ export function createStore(storage) {
       return [...seen.values()];
     },
 
-    /**
-     * Остання невиконана домашка звички з модулем «Домашка» (з дати не пізніше за `upTo`):
-     * { date, habit, entry } або null. Кожна звичка — окремо; перша за порядком реєстру, що має відкриту.
-     */
+    /** Остання невиконана домашка (з дати не пізніше за `upTo`). */
     openHomework(upTo = todayKey()) {
-      for (const habit of habitsWith('hw')) {
-        const ids = [...entries.keys()].filter((id) => id.slice(11) === habit && id.slice(0, 10) <= upTo).sort().reverse();
-        for (const id of ids) {
-          const e = entries.get(id);
-          if (e.s !== 'done') continue;
-          if (e.hw?.text && e.hw.done !== true) return { date: id.slice(0, 10), habit, entry: e };
-          if (e.hw?.text) break; // остання домашка цієї звички вже виконана
-        }
+      const ids = [...entries.keys()].filter((id) => id.endsWith(':eng') && id.slice(0, 10) <= upTo).sort().reverse();
+      for (const id of ids) {
+        const e = entries.get(id);
+        if (e.s !== 'done') continue;
+        if (e.hw?.text && e.hw.done !== true) return { date: id.slice(0, 10), entry: e };
+        if (e.hw?.text) return null; // остання домашка вже виконана
       }
       return null;
     },
-
-    /** Усі ключі сховища як є (разом із незбереженими змінами з черги) — для резервної копії. */
-    snapshot: () => readAll(),
 
     /** Лише для браузерного режиму: стерти все і почати з нуля. */
     async wipe() {
       const keys = await storage.getKeys();
       keys.forEach((k) => storage.remove(k));
       entries = new Map();
-      custom = new Map();
-      orphans = new Map();
-      habits = new Map();
       packOf = new Map();
       packs = new Map();
       ach = {};

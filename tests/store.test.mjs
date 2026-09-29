@@ -70,6 +70,9 @@ test('завантаження: пакети, окремі ключі повер
   const { store, cloud } = await open(values);
   golden('load/entries', entriesOf(store));
   golden('load/stats', store.stats());
+  // Етап 4.2: записи звички `read` (пакет і окремий ключ) — невідомої звички, не зіпсовані: не показуються, не губляться.
+  assert.equal(store.orphanCount, 2);
+  assert.equal(store.getEntry('2026-08-21', 'read'), null);
   golden('load/settings', store.settings);
   assert.equal(cloud.map.size, Object.keys(values).length, 'завантаження нічого не пише');
 });

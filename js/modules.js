@@ -21,6 +21,7 @@ export const oneOf = (v, list) => (list.includes(v) ? v : null);
 
 /**
  * Модуль:
+ * - fields — назви полів модуля в записі;
  * - normalize(raw, done) → поля модуля в записі (для miss — очищені, як і раніше);
  * - step(bonus) → крок покрокової форми або null (після відмітки «виконав»);
  * - filled(e) → чи є що показати (кнопка «Змінити» замість «Додати деталі»);
@@ -29,6 +30,7 @@ export const oneOf = (v, list) => (list.includes(v) ? v : null);
 export const MODULES = {
   program: {
     name: 'Програма',
+    fields: ['day'],
     // День програми зберігається і при пропуску (для аналітики «спина після Дня N»).
     normalize: (raw) => ({ day: oneOf(raw.day, PROGRAM_DAYS) }),
     // Для запланованого День береться з розкладу; питаємо лише для бонусного.
@@ -38,6 +40,7 @@ export const MODULES = {
   },
   dur: {
     name: 'Тривалість',
+    fields: ['dur'],
     normalize: (raw, done) => ({ dur: done ? oneOf(raw.dur, DUR.map((d) => d.v)) : null }),
     step: () => 'dur',
     filled: (e) => !!e.dur,
@@ -45,6 +48,7 @@ export const MODULES = {
   },
   back: {
     name: 'Спина',
+    fields: ['back'],
     normalize: (raw, done) => ({ back: done ? boolOrNull(raw.back) : null }),
     step: () => 'back',
     filled: (e) => e.back !== null,
@@ -56,6 +60,7 @@ export const MODULES = {
   },
   topic: {
     name: 'Тема',
+    fields: ['topic'],
     normalize: (raw, done) => ({ topic: done ? str(raw.topic, TOPIC_MAX) : '' }),
     step: () => 'topic',
     filled: (e) => !!e.topic,
@@ -63,6 +68,7 @@ export const MODULES = {
   },
   hw: {
     name: 'Домашка',
+    fields: ['hw'],
     normalize(raw, done) {
       let hw = null;
       if (done && raw.hw && typeof raw.hw === 'object') {
