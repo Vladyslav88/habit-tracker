@@ -1,7 +1,7 @@
 // Контрольні точки (SPEC §8): відлік днів, підсумок відрізку, власні точки.
 import { checkpointTimeline } from '../analytics.js';
 import { diffDays, fmtDay, isValidKey, plural, relDays, todayKey } from '../dates.js';
-import { HABITS, HABIT_IDS } from '../entry.js';
+import { HABITS, HABIT_IDS } from '../habits.js';
 import { haptic } from '../tg.js';
 import { h, icon } from './dom.js';
 import { openScreen } from './screen.js';

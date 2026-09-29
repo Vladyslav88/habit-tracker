@@ -1,6 +1,7 @@
 // Дані застосунку поверх адаптера сховища: налаштування, записи, упаковка старих місяців.
 import { isValidKey, keyOf, monthKey, parseKey, todayKey } from './dates.js';
-import { HABIT_IDS, normalizeEntry } from './entry.js';
+import { normalizeEntry } from './entry.js';
+import { HABIT_IDS, habitsWith, hasModule, isHabit } from './habits.js';
 import { defaultSettings, entryId, normalizeSettings, planFor } from './schedule.js';
 import { VALUE_MAX } from './storage.js';
 
@@ -8,7 +9,10 @@ export const SETTINGS_KEY = 'settings';
 export const ACH_KEY = 'ach';
 export const PACK_THRESHOLD = 900;
 
-const ENTRY_KEY_RE = /^e_(\d{4}-\d{2}-\d{2})_(train|eng)$/;
+// Ключі записів лише відомих звичок: записи інших id не читаються й не вважаються зіпсованими.
+const HABIT_ALT = HABIT_IDS.join('|');
+const ENTRY_KEY_RE = new RegExp(`^e_(\\d{4}-\\d{2}-\\d{2})_(${HABIT_ALT})$`);
+const PACKED_ID_RE = new RegExp(`^(\\d{4}-\\d{2}-\\d{2})_(${HABIT_ALT})$`);
 const PACK_KEY_RE = /^m_(\d{4}-\d{2})_(\d+)$/;
 const PACK_BUDGET = VALUE_MAX - 96;
 
@@ -93,7 +97,7 @@ export function createStore(storage) {
       if (!obj || typeof obj !== 'object') { next.broken++; continue; }
       const ids = new Set();
       for (const [inner, raw] of Object.entries(obj)) {
-        const m = /^(\d{4}-\d{2}-\d{2})_(train|eng)$/.exec(inner);
+        const m = PACKED_ID_RE.exec(inner);
         if (!m) { next.broken++; continue; }
         const id = entryId(m[1], m[2]);
         put(id, m[2], raw);
@@ -141,7 +145,7 @@ export function createStore(storage) {
     const planned = plan.habits.includes(habit);
     // Бонус — лише виконана позапланова звичка; «пропуск бонусу» не має сенсу.
     const raw = { ...data, bonus: data.s === 'done' && !planned };
-    if (habit === 'train' && raw.day == null && planned) raw.day = plan.trainDay;
+    if (hasModule(habit, 'program') && raw.day == null && planned) raw.day = plan.trainDay;
     return normalizeEntry(habit, raw);
   }
 
@@ -297,7 +301,7 @@ export function createStore(storage) {
 
     /** Створює або оновлює запис. `patch` зливається з наявним записом. */
     saveEntry(date, habit, patch) {
-      if (!HABIT_IDS.includes(habit)) throw new Error('Невідома звичка');
+      if (!isHabit(habit)) throw new Error('Невідома звичка');
       const id = entryId(date, habit);
       const prev = entries.get(id);
       const entry = withDerived(date, habit, { ...(prev || { ts: new Date().toISOString() }), ...patch });
@@ -355,11 +359,11 @@ export function createStore(storage) {
       return { added: add, fresh };
     },
 
-    /** Попередні теми англійської — для автопідказок (новіші першими, без повторів). */
+    /** Попередні теми (звички з модулем «Тема») — для автопідказок (новіші першими, без повторів). */
     topics() {
       const seen = new Map();
       const list = [...entries.entries()]
-        .filter(([id, e]) => id.endsWith(':eng') && e.topic)
+        .filter(([id, e]) => hasModule(id.slice(11), 'topic') && e.topic)
         .sort((a, b) => (a[0] < b[0] ? 1 : -1));
       for (const [, e] of list) {
         const k = e.topic.toLowerCase();
@@ -368,14 +372,19 @@ export function createStore(storage) {
       return [...seen.values()];
     },
 
-    /** Остання невиконана домашка (з дати не пізніше за `upTo`). */
+    /**
+     * Остання невиконана домашка звички з модулем «Домашка» (з дати не пізніше за `upTo`):
+     * { date, habit, entry } або null. Кожна звичка — окремо; перша за порядком реєстру, що має відкриту.
+     */
     openHomework(upTo = todayKey()) {
-      const ids = [...entries.keys()].filter((id) => id.endsWith(':eng') && id.slice(0, 10) <= upTo).sort().reverse();
-      for (const id of ids) {
-        const e = entries.get(id);
-        if (e.s !== 'done') continue;
-        if (e.hw?.text && e.hw.done !== true) return { date: id.slice(0, 10), entry: e };
-        if (e.hw?.text) return null; // остання домашка вже виконана
+      for (const habit of habitsWith('hw')) {
+        const ids = [...entries.keys()].filter((id) => id.slice(11) === habit && id.slice(0, 10) <= upTo).sort().reverse();
+        for (const id of ids) {
+          const e = entries.get(id);
+          if (e.s !== 'done') continue;
+          if (e.hw?.text && e.hw.done !== true) return { date: id.slice(0, 10), habit, entry: e };
+          if (e.hw?.text) break; // остання домашка цієї звички вже виконана
+        }
       }
       return null;
     },

@@ -1,6 +1,7 @@
 // Розклад, паузи і похідні стани днів (SPEC §3, §7). Лише чисті функції.
 import { addDays, daysInMonth, isValidKey, keyOf, weekdayIdx } from './dates.js';
-import { HABIT_IDS } from './entry.js';
+import { HABIT_IDS, hasModule, programDayOn, scheduledOn } from './habits.js';
+import { PROGRAM_DAYS } from './modules.js';
 
 export const SCHEMA_VERSION = 1;
 /** Дата «з початку часів» для першої версії розкладу. */
@@ -46,7 +47,7 @@ export function defaultSettings(startDate) {
 function normDays(days) {
   if (!Array.isArray(days) || days.length !== 7) return structuredClone(DEFAULT_DAYS);
   return days.map((d) => ({
-    train: [0, 1, 2, 3].includes(d?.train) ? d.train : 0,
+    train: [0, ...PROGRAM_DAYS].includes(d?.train) ? d.train : 0,
     eng: d?.eng === true,
   }));
 }
@@ -62,7 +63,7 @@ export function normalizeSettings(raw, fallbackStart) {
       .sort((a, b) => (a.from < b.from ? -1 : 1))
     : [];
   const workouts = { ...DEFAULT_WORKOUTS };
-  for (const n of [1, 2, 3]) {
+  for (const n of PROGRAM_DAYS) {
     const w = raw.workouts?.[n];
     if (typeof w === 'string' && w.trim()) workouts[n] = w.trim().slice(0, 80);
   }
@@ -111,15 +112,14 @@ export function pauseOn(settings, date) {
 
 /**
  * План на дату.
- * planned — що стоїть у розкладі; habits — що реально треба зробити (порожньо, якщо пауза).
+ * planned — що стоїть у розкладі; habits — що реально треба зробити (порожньо, якщо пауза);
+ * trainDay — День програми (модуль «Програма»; назва поля історична).
  */
 export function planFor(settings, date) {
   const day = daysFor(settings, date)[weekdayIdx(date)];
-  const planned = [];
-  if (day.train) planned.push('train');
-  if (day.eng) planned.push('eng');
+  const planned = HABIT_IDS.filter((habit) => scheduledOn(day, habit));
   const pause = pauseOn(settings, date);
-  return { planned, habits: pause ? [] : planned, trainDay: day.train || null, pause };
+  return { planned, habits: pause ? [] : planned, trainDay: programDayOn(day), pause };
 }
 
 export const isPlanned = (settings, date, habit) => planFor(settings, date).habits.includes(habit);
@@ -169,7 +169,7 @@ export function dayInfo(settings, entries, date, today) {
         habit,
         state: e.s,
         bonus: e.s === 'done' && !isPlan,
-        back: habit === 'train' && e.back === true,
+        back: hasModule(habit, 'back') && e.back === true,
         entry: e,
       });
     } else if (isPlan && (date >= today || tracked)) {

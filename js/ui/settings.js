@@ -1,6 +1,7 @@
 // Вкладка «Налаштування» (SPEC §5.5): розклад, паузи, контрольні точки, про застосунок.
 import { addDays, diffDays, fmtDay, isValidKey, plural, todayKey, WEEKDAYS, WEEKDAYS_CAP } from '../dates.js';
-import { HABITS } from '../entry.js';
+import { HABIT_IDS, HABITS, scheduledOn } from '../habits.js';
+import { PROGRAM_DAYS } from '../modules.js';
 import { daysFor, DEFAULT_DAYS, DEFAULT_WORKOUTS, missesInRange, PAUSE_LABEL_MAX, pauseOn } from '../schedule.js';
 import { getPreview, SEASONS, seasonOf, setPreview, timeOfDay, TIMES } from '../seasons.js';
 import { KEYS_MAX } from '../storage.js';
@@ -15,9 +16,10 @@ export const APP_VERSION = '0.4.2 · Етап 2б';
 
 function scheduleSummary(settings) {
   const days = daysFor(settings, todayKey());
-  const t = days.map((d, i) => (d.train ? WEEKDAYS_CAP[i] : null)).filter(Boolean);
-  const e = days.map((d, i) => (d.eng ? WEEKDAYS_CAP[i] : null)).filter(Boolean);
-  return [t.length && `${t.join(', ')} — тренування`, e.length && `${e.join(', ')} — англійська`].filter(Boolean).join(' · ') || 'порожній';
+  return HABIT_IDS.map((hb) => {
+    const on = days.map((d, i) => (scheduledOn(d, hb) ? WEEKDAYS_CAP[i] : null)).filter(Boolean);
+    return on.length && `${on.join(', ')} — ${HABITS[hb].name.toLowerCase()}`;
+  }).filter(Boolean).join(' · ') || 'порожній';
 }
 
 function pausesSummary(settings) {
@@ -79,7 +81,7 @@ function openSchedule(store) {
           ...days.map((d, i) => h('div', { class: `sched-row ${i > 4 ? 'we' : ''}` },
             h('span', { class: 'sched-day', title: WEEKDAYS[i] }, WEEKDAYS_CAP[i]),
             h('div', { class: 'mini-seg habit-train', role: 'radiogroup', 'aria-label': `${WEEKDAYS[i]}: тренування` },
-              [0, 1, 2, 3].map((n) => h('button', {
+              [0, ...PROGRAM_DAYS].map((n) => h('button', {
                 type: 'button',
                 role: 'radio',
                 class: d.train === n ? 'on' : '',
@@ -99,7 +101,7 @@ function openSchedule(store) {
       paintTable();
 
       const focus = h('div', { class: 'card stack-s' },
-        [1, 2, 3].map((n) => h('label', { class: 'field' },
+        PROGRAM_DAYS.map((n) => h('label', { class: 'field' },
           h('span', { class: 'field-label' }, `День ${n}`),
           h('input', {
             class: 'input',
@@ -120,7 +122,7 @@ function openSchedule(store) {
               const same = JSON.stringify(last.days) === JSON.stringify(days);
               if (last.from >= today) last.days = days;
               else if (!same) s.schedule.push({ from: today, days });
-              for (const n of [1, 2, 3]) s.workouts[n] = workouts[n].trim() || DEFAULT_WORKOUTS[n];
+              for (const n of PROGRAM_DAYS) s.workouts[n] = workouts[n].trim() || DEFAULT_WORKOUTS[n];
               return s;
             });
             haptic.success();

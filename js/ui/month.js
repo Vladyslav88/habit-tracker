@@ -3,7 +3,8 @@
 import { achievementById } from '../achievements.js';
 import { MIN, monthReport, reportMonths } from '../analytics.js';
 import { fmtDay, MONTHS, MONTHS_GEN, plural, todayKey } from '../dates.js';
-import { HABITS, HABIT_IDS, reasonLabel } from '../entry.js';
+import { reasonLabel } from '../entry.js';
+import { HABITS, HABIT_IDS } from '../habits.js';
 import { SEASONS, seasonOf } from '../seasons.js';
 import { haptic } from '../tg.js';
 import { openAchievements } from './achievements.js';
