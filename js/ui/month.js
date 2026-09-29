@@ -90,11 +90,12 @@ function rangeLine(rep) {
 }
 
 function missTile(rep) {
-  const sub = [
-    rep.unmarked && `ще не відмічено ${rep.unmarked}`,
-    rep.pauseDays && `пауза ${rep.pauseDays} ${plural(rep.pauseDays, ['день', 'дні', 'днів'])} — не рахується`,
-  ].filter(Boolean);
-  return tile('Пропуски', String(rep.misses), sub.join(' · ') || (rep.misses ? null : 'чисто'));
+  // Один короткий підпис (≤ 2 рядків на 360 px): пауза важливіша за розбивку; невідмічені — у блоках звичок.
+  let sub;
+  if (rep.pauseDays) sub = `пауза ${rep.pauseDays} ${plural(rep.pauseDays, ['день', 'дні', 'днів'])} — не рахується`;
+  else if (!rep.misses) sub = 'пропусків не було';
+  else sub = HABIT_IDS.map((hb) => `${HABITS[hb].name.toLowerCase()}\u00a0${rep.missBy[hb]}`).join(' · ');
+  return tile('Пропуски', String(rep.misses), sub);
 }
 
 /** Сама картка. store потрібен лише для досягнень місяця. */

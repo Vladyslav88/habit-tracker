@@ -19,7 +19,7 @@ export const ACHIEVEMENTS = [
   { id: 'golden_autumn', emoji: '🍁', name: 'Золота осінь', season: 'autumn', cond: 'Вересень–листопад без жодного пропущеного тренування. Паузи не рахуються.' },
   { id: 'first_snow', emoji: '❄️', name: 'Перший сніг', season: 'winter', cond: 'Перше тренування взимку (грудень–лютий).' },
   { id: 'winter_grit', emoji: '🧊', name: 'Зимовий гарт', season: 'winter', cond: '12 тренувань поспіль протягом однієї зими.' },
-  { id: 'spring_awakening', emoji: '🌱', name: 'Весняне пробудження', season: 'spring', cond: 'Тренування після завершеної паузи.' },
+  { id: 'spring_awakening', emoji: '🌱', name: 'Повернення', season: 'spring', cond: 'Тренування після завершеної паузи.' },
   { id: 'no_excuses', emoji: '🛡️', name: 'Без відмовок', cond: 'Повний календарний місяць без пропусків обох звичок.' },
   { id: 'polyglot_25', emoji: '🗣️', tier: '25', name: 'Поліглот 25', habit: 'eng', cond: '25 різних тем англійської.' },
   { id: 'polyglot_50', emoji: '🗣️', tier: '50', name: 'Поліглот 50', habit: 'eng', cond: '50 різних тем англійської.' },
@@ -120,7 +120,7 @@ export function evaluateAchievements(settings, entries, today) {
   put('winter_grit', winterBest >= ACH_RULES.winterRun, winterBest, ACH_RULES.winterRun,
     winters.length ? null : 'Серія рахується з 1 грудня до кінця лютого.');
 
-  // Весняне пробудження: виконане тренування після паузи, що вже завершилась
+  // Повернення (id spring_awakening — історичний, не міняти): виконане тренування після паузи, що вже завершилась
   const ended = settings.pauses.filter((p) => p.to !== null && p.to >= start && p.to < today);
   const back = trainsDone.some((r) => ended.some((p) => r.date > p.to));
   const pausedNow = pauseOn(settings, today);
