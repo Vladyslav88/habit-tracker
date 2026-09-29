@@ -2,10 +2,20 @@
 import { backButton } from '../tg.js';
 
 const stack = [];
+const emptyListeners = new Set();
 
 function sync() {
   if (stack.length) backButton.show();
-  else backButton.hide();
+  else {
+    backButton.hide();
+    emptyListeners.forEach((fn) => fn());
+  }
+}
+
+/** Коли закрито всі шторки й екрани (напр., щоб показати нове досягнення, не перебиваючи форму). */
+export function onStackEmpty(fn) {
+  emptyListeners.add(fn);
+  return () => emptyListeners.delete(fn);
 }
 
 /** Реєструє обробник «назад». Повертає функцію, що знімає його зі стеку. */

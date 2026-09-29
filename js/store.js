@@ -1,5 +1,5 @@
 // Дані застосунку поверх адаптера сховища: налаштування, записи, упаковка старих місяців.
-import { keyOf, monthKey, parseKey, todayKey } from './dates.js';
+import { isValidKey, keyOf, monthKey, parseKey, todayKey } from './dates.js';
 import { HABIT_IDS, normalizeEntry } from './entry.js';
 import { defaultSettings, entryId, normalizeSettings, planFor } from './schedule.js';
 import { VALUE_MAX } from './storage.js';
@@ -21,6 +21,20 @@ export const INITIAL_HISTORY = [
 export const entryKey = (date, habit) => `e_${date}_${habit}`;
 const packKey = (month, n) => `m_${month}_${n}`;
 const noonIso = (date) => parseKey(date).toISOString();
+const ACH_ID_RE = /^[a-z0-9_]{1,40}$/;
+
+/**
+ * Отримані досягнення: { id: 'YYYY-MM-DD' }. Сміття відкидається, невідомі id лишаються
+ * (їх могла записати новіша версія на іншому пристрої). Відсутній ключ — порожньо.
+ */
+export function normalizeAch(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+  for (const [id, date] of Object.entries(raw)) {
+    if (ACH_ID_RE.test(id) && isValidKey(date)) out[id] = date;
+  }
+  return out;
+}
 
 function parseJson(str) {
   if (!str) return null;
@@ -203,7 +217,7 @@ export function createStore(storage) {
       packs = parsed.packs;
       broken = parsed.broken;
       keyCount = parsed.keyCount;
-      ach = parsed.achRaw && typeof parsed.achRaw === 'object' ? parsed.achRaw : {};
+      ach = normalizeAch(parsed.achRaw);
       if (empty) {
         seed();
       } else {
@@ -229,7 +243,7 @@ export function createStore(storage) {
       broken = parsed.broken;
       keyCount = parsed.keyCount;
       settings = normalizeSettings(parsed.settingsRaw, settings.startDate);
-      if (parsed.achRaw) ach = parsed.achRaw;
+      ach = normalizeAch(parsed.achRaw);
       loadedAt = Date.now();
       emit();
       return true;
@@ -274,6 +288,23 @@ export function createStore(storage) {
       return next;
     },
 
+    /**
+     * Позначити досягнення отриманими (дата — сьогодні). Уже отримані не перезаписуються.
+     * Пишеться одним ключем `ach` через ту саму чергу, що й записи. Повертає id нових.
+     */
+    grantAchievements(ids, date = todayKey()) {
+      const add = ids.filter((id) => ACH_ID_RE.test(id) && !ach[id]);
+      if (!add.length) return [];
+      const next = { ...ach };
+      for (const id of add) next[id] = date;
+      const hadKey = Object.keys(ach).length > 0;
+      storage.set(ACH_KEY, JSON.stringify(next));
+      if (!hadKey) keyCount++;
+      ach = next;
+      emit();
+      return add;
+    },
+
     /** Попередні теми англійської — для автопідказок (новіші першими, без повторів). */
     topics() {
       const seen = new Map();
@@ -306,6 +337,7 @@ export function createStore(storage) {
       entries = new Map();
       packOf = new Map();
       packs = new Map();
+      ach = {};
       keyCount = 0;
       seed();
       emit();

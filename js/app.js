@@ -13,6 +13,7 @@ import { depth, initNav } from './ui/nav.js';
 import { renderSettings } from './ui/settings.js';
 import { toast } from './ui/sheet.js';
 import { renderAnalytics } from './ui/analytics.js';
+import { watchAchievements } from './ui/achievements.js';
 import { renderEnglish } from './ui/stubs.js';
 import { renderToday } from './ui/today.js';
 
@@ -213,6 +214,7 @@ async function boot() {
   renderTabs();
   render();
   store.subscribe(render);
+  watchAchievements(store);
 }
 
 initTelegram();

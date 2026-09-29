@@ -5,12 +5,13 @@ import { daysFor, DEFAULT_DAYS, DEFAULT_WORKOUTS, missesInRange, PAUSE_LABEL_MAX
 import { getPreview, SEASONS, seasonOf, setPreview, timeOfDay, TIMES } from '../seasons.js';
 import { KEYS_MAX } from '../storage.js';
 import { haptic } from '../tg.js';
+import { achievementsSummary, openAchievements } from './achievements.js';
 import { cpRange, cpWhen, nextCheckpoint, openCheckpoints } from './checkpoints.js';
 import { h, icon } from './dom.js';
 import { openScreen } from './screen.js';
 import { confirmDialog, openSheet, toast } from './sheet.js';
 
-export const APP_VERSION = '0.3.0 · Етап 2а';
+export const APP_VERSION = '0.4.0 · Етап 2б';
 
 function scheduleSummary(settings) {
   const days = daysFor(settings, todayKey());
@@ -33,6 +34,11 @@ function checkpointsSummary(store) {
   return n ? 'усі вже минули' : 'немає';
 }
 
+function achievementsLine(store) {
+  const s = achievementsSummary(store);
+  return `${s.got} з ${s.total}${s.last ? ` · останнє: ${s.last.name}` : ''}`;
+}
+
 function row({ icon: ic, title, sub, onClick, soon }) {
   return h('button', { type: 'button', class: 'row', disabled: !!soon, onclick: onClick },
     h('span', { class: 'row-ic' }, icon(ic)),
@@ -50,6 +56,7 @@ export function renderSettings(view, ctx) {
         row({ icon: 'pause', title: 'Паузи', sub: pausesSummary(store.settings), onClick: () => openPauses(store) })),
       h('div', { class: 'group' },
         row({ icon: 'flag', title: 'Контрольні точки', sub: checkpointsSummary(store), onClick: () => openCheckpoints(store) }),
+        row({ icon: 'medal', title: 'Досягнення', sub: achievementsLine(store), onClick: () => openAchievements(store) }),
         row({ icon: 'swap', title: 'Імпорт і експорт', sub: 'CSV, JSON, XLSX', soon: 'Етап 3' })),
       h('div', { class: 'group' },
         row({ icon: 'info', title: 'Про застосунок', sub: store.mode === 'cloud' ? 'дані в хмарі Telegram' : 'дані в цьому браузері', onClick: () => openAbout(ctx) }))),

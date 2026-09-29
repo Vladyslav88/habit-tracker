@@ -1,12 +1,14 @@
 // Вкладка «Сьогодні» (SPEC §5.1).
-import { fmtDay, fmtLong, fmtShort, fmtTime, relDays, todayKey } from '../dates.js';
+import { daysInMonth, fmtDay, fmtLong, fmtShort, fmtTime, keyOf, MONTHS_GEN, parseKey, relDays, todayKey } from '../dates.js';
 import { HABITS, HABIT_IDS } from '../entry.js';
 import { sceneMarkup } from '../scenes.js';
-import { currentLook, greetingFor, SEASONS } from '../seasons.js';
+import { currentLook, greetingFor, SEASONS, seasonOf } from '../seasons.js';
 import { entryId, planFor, unmarked, upcoming } from '../schedule.js';
 import { firstName, haptic } from '../tg.js';
 import { h, icon } from './dom.js';
+import { achievementsSummary, openAchievements } from './achievements.js';
 import { chipRow, entryChips, habitSubtitle, habitTitle, markAndAsk, openEntryEditor, openStepForm } from './entry-form.js';
+import { openMonthCard } from './month.js';
 import { openSheet, toast } from './sheet.js';
 
 const hasDetails = (habit, e) => e.energy || e.comment || e.reasons.length
@@ -113,6 +115,45 @@ function upcomingList(store, today) {
     h('span', { class: 'list-when small' }, h('b', null, fmtShort(d.date).split(',')[0]), relDays(d.date, today))))));
 }
 
+/**
+ * Місячна картка наприкінці місяця: з останніх 3 днів — поточний («майже завершено»),
+ * з 1 до 7 числа — минулий (якщо відстеження тоді вже йшло).
+ */
+function monthCta(store, today) {
+  const d = parseKey(today);
+  const y = d.getFullYear();
+  const m = d.getMonth();
+  let target = null;
+  let sub = '';
+  if (d.getDate() > daysInMonth(y, m) - 3) {
+    target = { y, m };
+    sub = 'Місяць майже завершено — подивись, як він пройшов';
+  } else if (d.getDate() <= 7) {
+    const prev = new Date(y, m - 1, 1, 12);
+    const last = keyOf(new Date(prev.getFullYear(), prev.getMonth(), daysInMonth(prev.getFullYear(), prev.getMonth()), 12));
+    if (last >= store.settings.startDate) {
+      target = { y: prev.getFullYear(), m: prev.getMonth() };
+      sub = 'Місяць завершено — картка готова';
+    }
+  }
+  if (!target) return null;
+  const season = seasonOf(new Date(target.y, target.m, 15));
+  return h('button', { type: 'button', class: 'month-cta', onclick: () => openMonthCard(store, target) },
+    h('span', { class: 'month-cta-ic', 'aria-hidden': 'true' }, SEASONS[season].emoji),
+    h('span', { class: 'month-cta-main' }, h('strong', null, `Підсумок ${MONTHS_GEN[target.m]}`), h('span', { class: 'small muted' }, sub)),
+    icon('chevronR', 'row-chev'));
+}
+
+function achievementsLink(store) {
+  const s = achievementsSummary(store);
+  return h('button', { type: 'button', class: 'ach-link', onclick: () => openAchievements(store) },
+    h('span', { class: 'ach-link-ic', 'aria-hidden': 'true' }, '🏅'),
+    h('span', { class: 'month-cta-main' },
+      h('strong', null, `Досягнення · ${s.got} з ${s.total}`),
+      h('span', { class: 'small muted' }, s.last ? `останнє: ${s.last.emoji} ${s.last.name}` : 'перше вже близько')),
+    icon('chevronR', 'row-chev'));
+}
+
 function renderHero(look, key, now = new Date()) {
   const s = SEASONS[look.season];
   const greet = greetingFor(now) + (firstName ? `, ${firstName}` : '');
@@ -160,6 +201,9 @@ export function renderToday(view, { store }) {
   }
   body.append(list);
 
+  const cta = monthCta(store, today);
+  if (cta) body.append(h('div', { class: 'stack month-cta-wrap' }, cta));
+
   const hw = store.openHomework(today);
   if (hw) body.append(h('h2', { class: 'section-title' }, 'Домашка'), homeworkCard(store, hw));
 
@@ -170,6 +214,8 @@ export function renderToday(view, { store }) {
 
   const next = upcomingList(store, today);
   if (next && plan.habits.length) body.append(h('h2', { class: 'section-title' }, 'Далі за розкладом'), next);
+
+  body.append(h('div', { class: 'stack ach-link-wrap' }, achievementsLink(store)));
 
   // Шапку не перебудовуємо без потреби — інакше анімації сцени починалися б спочатку після кожного тапу.
   const key = [look.season, look.tod, greetingFor(), today, firstName].join('|');

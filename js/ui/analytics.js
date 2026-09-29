@@ -1,10 +1,11 @@
 // Вкладка «Аналітика» (SPEC §8). Графіки — простий SVG/CSS, кольори лише з токенів палітри.
-import { analyze, checkpointTimeline, MIN, PERIODS, periodRange, streaks } from '../analytics.js';
-import { fmtDay, fmtShort, plural, todayKey } from '../dates.js';
+import { analyze, checkpointTimeline, MIN, PERIODS, periodRange, reportMonths, streaks } from '../analytics.js';
+import { fmtDay, fmtShort, MONTHS, plural, todayKey } from '../dates.js';
 import { DUR, ENERGY, HABITS, HABIT_IDS, reasonLabel } from '../entry.js';
 import { haptic } from '../tg.js';
 import { checkpointCard, cpRange, cpWhen, openCheckpoints } from './checkpoints.js';
 import { h, icon } from './dom.js';
+import { openMonthCard } from './month.js';
 
 let period = '4w';
 try { period = sessionStorage.getItem('ht_period') || period; } catch { /* ignore */ }
@@ -41,7 +42,7 @@ function card(title, sub, ...body) {
 // ——— Виконання ———
 
 /** Кільце виконання: тренування — коло, англійська — заокруглений квадрат (як у календарі). */
-function ring(habit, pct) {
+export function ring(habit, pct) {
   const shape = (cls) => (habit === 'train'
     ? svg('circle', { class: cls, cx: 28, cy: 28, r: 23, pathLength: 100 })
     : svg('rect', { class: cls, x: 5, y: 5, width: 46, height: 46, rx: 14, pathLength: 100 }));
@@ -156,7 +157,7 @@ function tile(label, value, sub) {
   return h('div', { class: 'an-tile' }, h('span', { class: 'small muted' }, label), h('b', null, value), sub && h('span', { class: 'small muted' }, sub));
 }
 
-function energyValue(x) {
+export function energyValue(x) {
   if (x === null) return '—';
   const e = ENERGY[Math.min(4, Math.max(0, Math.round(x) - 1))];
   return `${e.emoji} ${num1(x)}`;
@@ -267,6 +268,16 @@ export function renderAnalytics(view, ctx) {
       energyCard(a),
     );
   }
+
+  // Посилання на місячну картку: поточний (в процесі) і минулий місяць; решта — стрілками на екрані картки.
+  const months = reportMonths(settings, today).slice(-2).reverse();
+  parts.push(
+    h('h2', { class: 'section-title' }, 'Місячний підсумок'),
+    h('div', { class: 'group mc-links' }, months.map((mo, i) => h('button', { type: 'button', class: 'row mc-link', onclick: () => openMonthCard(store, mo) },
+      h('span', { class: 'row-main' }, h('span', { class: 'row-title' }, `${MONTHS[mo.m]} ${mo.y}`)),
+      i === 0 ? h('span', { class: 'tag' }, 'в процесі') : null,
+      icon('chevronR', 'row-chev')))),
+  );
 
   parts.push(
     h('div', { class: 'an-section-head' },
